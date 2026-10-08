@@ -1,26 +1,45 @@
 "use client";
 
 import * as React from "react";
+import { flushSync } from "react-dom";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { authenticate, type AuthMode, type AuthState } from "@/lib/actions/auth";
-import { cn } from "@/lib/utils";
+import { CircleAlert, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { authenticate, type AuthState } from "@/lib/actions/auth";
+import {
+  FIELD_ORDER,
+  MIN_PASSWORD,
+  readAuthFields,
+  validateAuth,
+  type AuthErrors,
+  type AuthFields,
+  type AuthMode,
+} from "@/lib/auth-validation";
 
 const COPY = {
   login: {
-    eyebrow: "Corridor · Secure node 01",
-    title: ["Welcome", "back"],
+    title: "Welcome back",
+    description: "Sign in to your Corridor account.",
     submit: "Sign in",
     pending: "Signing in…",
-    links: [
-      // Placeholder until a password-reset flow exists.
-      { label: "Forgot password", href: "#" },
-      { label: "Create account", href: "/signup" },
-    ],
+    switchText: "Don't have an account?",
+    switchLabel: "Create one",
+    switchHref: "/signup",
   },
   signup: {
-    eyebrow: "Corridor · New archive",
-    title: ["Create", "account"],
+    title: "Create your account",
+    description: "Start with a hero that already looks finished.",
+    switchText: "Already have an account?",
+    switchLabel: "Sign in",
+    switchHref: "/login",
     submit: "Create account",
     pending: "Creating account…",
     links: [
@@ -30,238 +49,220 @@ const COPY = {
   },
 } as const;
 
-// The signature ease of the reference: fast out, long settle.
-const settle = "ease-[cubic-bezier(0.2,1,0.3,1)]";
-
-// Staggered rise-in. The delay goes inline because Tailwind can't see
-// class names assembled at runtime.
-const enter = cn(
-  "animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-700 motion-reduce:animate-none",
-  settle,
-);
-const stagger = (ms: number): React.CSSProperties => ({ animationDelay: `${ms}ms` });
-
-type FieldProps = React.ComponentProps<"input"> & {
-  id: string;
-  label: string;
-  error?: string;
-  trailing?: React.ReactNode;
-};
-
-function Field({ id, label, error, trailing, className, ...props }: FieldProps) {
-  const errorId = `${id}-error`;
-  return (
-    <div
-      className={cn(
-        "group/field transition-transform duration-500 focus-within:translate-x-2.5 motion-reduce:transition-none motion-reduce:focus-within:translate-x-0",
-        settle,
-      )}
-    >
-      <label
-        htmlFor={id}
-        className="block font-terminal text-[11px] tracking-[0.14em] text-white/55 uppercase transition-colors group-focus-within/field:text-white/90"
-      >
-        {label}
-      </label>
-      <div className="relative mt-1">
-        <input
-          id={id}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
-          className={cn(
-            "peer w-full rounded-none border-0 border-b border-white/15 bg-transparent py-3 text-lg text-white caret-white outline-none transition-colors placeholder:text-white/30 hover:border-white/30 aria-invalid:border-red-400/50",
-            "autofill:shadow-[inset_0_0_0_1000px_#050505] autofill:[-webkit-text-fill-color:#fff]",
-            trailing ? "pr-11" : null,
-            className,
-          )}
-          {...props}
-        />
-        {/* The mercury line that pours across the field on focus. */}
-        <span
-          aria-hidden
-          className={cn(
-            "pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-[#e0e0e0] shadow-[0_0_15px_#e0e0e0] transition-transform duration-700 peer-focus:scale-x-100 motion-reduce:transition-none",
-            "peer-aria-invalid:scale-x-100 peer-aria-invalid:bg-red-400 peer-aria-invalid:shadow-[0_0_12px_rgb(248_113_113/0.6)]",
-            settle,
-          )}
-        />
-        {trailing}
-      </div>
-      {error ? (
-        <p id={errorId} className="mt-2 font-terminal text-[11px] text-red-400">
-          {error}
-        </p>
-      ) : null}
-    </div>
-  );
-}
+// 44px tall: comfortable touch targets.
+const inputClass = "h-11 px-3";
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
   const [state, formAction, pending] = React.useActionState<AuthState, FormData>(
     authenticate,
     {},
   );
+  const [clientErrors, setClientErrors] = React.useState<AuthErrors | null>(null);
   const [showPassword, setShowPassword] = React.useState(false);
+  const summaryRef = React.useRef<HTMLDivElement>(null);
   const copy = COPY[mode];
-  const errors = state.errors ?? {};
-  const fieldDelay = mode === "signup" ? 80 : 0;
 
-  // Dispatching manually (instead of <form action>) skips React's automatic
-  // form reset, so the fields keep what was typed when validation fails.
+  const errors = clientErrors ?? state.errors ?? {};
+  const errorFields = FIELD_ORDER.filter((field) => errors[field]);
+
+  // Server-side failures land here; move focus to the summary like the
+  // client-side path does.
+  React.useEffect(() => {
+    if (state.errors && Object.keys(state.errors).length > 0) {
+      summaryRef.current?.focus();
+    }
+  }, [state]);
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const found = validateAuth(mode, readAuthFields(formData));
+
+    if (Object.keys(found).length > 0) {
+      // Render the summary first so it exists to receive focus.
+      flushSync(() => setClientErrors(found));
+      summaryRef.current?.focus();
+      return;
+    }
+
+    setClientErrors(null);
+    // Dispatching manually (instead of <form action>) skips React's automatic
+    // form reset, so fields keep their values if the server rejects them.
     React.startTransition(() => formAction(formData));
   }
 
+  function clearError(field: keyof AuthFields) {
+    setClientErrors((prev) => {
+      if (!prev?.[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  }
+
+  function describedBy(field: keyof AuthFields, hasDescription = false) {
+    const ids = [
+      hasDescription ? `${field}-description` : null,
+      errors[field] ? `${field}-error` : null,
+    ].filter(Boolean);
+    return ids.length > 0 ? ids.join(" ") : undefined;
+  }
+
   return (
-    <div>
-      {/* Blur + alpha threshold: makes the button and its drop melt together. */}
-      <svg aria-hidden className="absolute size-0">
-        <defs>
-          <filter id="mercury-goo">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-            <feColorMatrix
-              in="blur"
-              mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
-              result="goo"
-            />
-            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-          </filter>
-        </defs>
-      </svg>
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-8">
+      <input type="hidden" name="mode" value={mode} />
 
-      <header className={cn("mb-14", enter)} style={stagger(100)}>
-        <p className="font-terminal text-[11px] tracking-[0.35em] text-white/50 uppercase">
-          {copy.eyebrow}
-        </p>
-        <h1 className="mt-3 -ml-0.5 text-5xl leading-[0.9] font-extrabold tracking-[-0.045em] uppercase">
-          {copy.title[0]}
-          <br />
-          {copy.title[1]}
-        </h1>
-      </header>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-semibold tracking-tight">{copy.title}</h1>
+        <p className="text-muted-foreground">{copy.description}</p>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <input type="hidden" name="mode" value={mode} />
-
-        {state.message ? (
+      {errorFields.length > 0 ? (
+        <div
+          ref={summaryRef}
+          tabIndex={-1}
+          aria-labelledby="error-summary-title"
+          className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 outline-none focus-visible:ring-2 focus-visible:ring-destructive/60"
+        >
           <p
-            role="alert"
-            className="mb-8 border-l-2 border-red-400 bg-red-500/10 px-3 py-2 font-terminal text-xs text-red-300"
+            id="error-summary-title"
+            className="flex items-center gap-2 text-sm font-medium text-destructive"
           >
-            {state.message}
+            <CircleAlert className="size-4 shrink-0" aria-hidden />
+            {errorFields.length === 1 ? "There's a problem" : "There are some problems"}
           </p>
+          <ul className="mt-2 flex flex-col gap-1 pl-6 text-sm">
+            {errorFields.map((field) => (
+              <li key={field}>
+                <a
+                  href={`#${field}`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    document.getElementById(field)?.focus();
+                  }}
+                  className="rounded text-foreground underline underline-offset-4 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {errors[field]}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {state.message ? (
+        <p
+          role="alert"
+          className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+        >
+          {state.message}
+        </p>
+      ) : null}
+
+      <FieldGroup>
+        {mode === "signup" ? (
+          <Field data-invalid={errors.name ? true : undefined}>
+            <FieldLabel htmlFor="name">Name</FieldLabel>
+            <Input
+              id="name"
+              name="name"
+              autoComplete="name"
+              required
+              aria-invalid={errors.name ? true : undefined}
+              aria-describedby={describedBy("name")}
+              onChange={() => clearError("name")}
+              className={inputClass}
+            />
+            {/* The focused summary already announces errors, so no live region here. */}
+            <FieldError id="name-error" role={undefined}>
+              {errors.name}
+            </FieldError>
+          </Field>
         ) : null}
 
-        <div className="flex flex-col gap-8">
-          {mode === "signup" ? (
-            <div className={enter} style={stagger(200)}>
-              <Field
-                id="name"
-                name="name"
-                label="Name"
-                autoComplete="name"
-                placeholder="Ada Lovelace"
-                required
-                error={errors.name}
-              />
-            </div>
-          ) : null}
+        <Field data-invalid={errors.email ? true : undefined}>
+          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="name@example.com"
+            required
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={describedBy("email")}
+            onChange={() => clearError("email")}
+            className={inputClass}
+          />
+          <FieldError id="email-error" role={undefined}>
+            {errors.email}
+          </FieldError>
+        </Field>
 
-          <div className={enter} style={stagger(200 + fieldDelay)}>
-            <Field
-              id="email"
-              name="email"
-              type="email"
-              label="Email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              required
-              error={errors.email}
-            />
-          </div>
-
-          <div className={enter} style={stagger(280 + fieldDelay)}>
-            <Field
+        <Field data-invalid={errors.password ? true : undefined}>
+          <FieldLabel htmlFor="password">Password</FieldLabel>
+          <div className="relative">
+            <Input
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
               label="Password"
               autoComplete={mode === "login" ? "current-password" : "new-password"}
-              placeholder={mode === "signup" ? "At least 8 characters" : "••••••••"}
               required
-              minLength={mode === "signup" ? 8 : undefined}
-              error={errors.password}
-              trailing={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute inset-y-0 right-0 my-auto flex size-11 items-center justify-center rounded-md text-white/45 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                  aria-label="Show password"
-                  aria-pressed={showPassword}
-                >
-                  {showPassword ? (
-                    <EyeOff size={18} aria-hidden />
-                  ) : (
-                    <Eye size={18} aria-hidden />
-                  )}
-                </button>
-              }
-            />
-          </div>
-        </div>
-
-        {/* The focus ring lives outside the goo filter, which would erase it. */}
-        <div
-          className={cn(
-            "mt-12 rounded-[1.25rem] has-focus-visible:ring-2 has-focus-visible:ring-white/70 has-focus-visible:ring-offset-4 has-focus-visible:ring-offset-[#050505]",
-            enter,
-          )}
-          style={stagger(380 + fieldDelay)}
-        >
-          <div className="group/submit relative [filter:url(#mercury-goo)]">
-            <span
-              aria-hidden
-              className="absolute inset-0 rounded-full bg-[#e0e0e0] transition-[scale,filter] duration-500 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] group-hover/submit:scale-x-105 group-hover/submit:scale-y-120 group-hover/submit:brightness-110 motion-reduce:transition-none"
+              minLength={mode === "signup" ? MIN_PASSWORD : undefined}
+              aria-invalid={errors.password ? true : undefined}
+              aria-describedby={describedBy("password", mode === "signup")}
+              onChange={() => clearError("password")}
+              className={`${inputClass} pr-11`}
             />
             <button
-              type="submit"
-              disabled={pending}
-              className="relative flex w-full items-center justify-center gap-2 rounded-[1.1rem] bg-white px-10 py-5 text-sm font-extrabold tracking-[0.15em] text-black uppercase transition-[letter-spacing] duration-300 outline-none hover:tracking-[0.28em] disabled:cursor-wait disabled:hover:tracking-[0.15em] motion-reduce:transition-none"
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              {pending ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" aria-hidden />
-                  {copy.pending}
-                </>
+              {showPassword ? (
+                <EyeOff className="size-4" aria-hidden />
               ) : (
-                copy.submit
+                <Eye className="size-4" aria-hidden />
               )}
             </button>
           </div>
-        </div>
-      </form>
+          {mode === "signup" ? (
+            <FieldDescription id="password-description">
+              At least {MIN_PASSWORD} characters.
+            </FieldDescription>
+          ) : null}
+          <FieldError id="password-error" role={undefined}>
+            {errors.password}
+          </FieldError>
+        </Field>
+      </FieldGroup>
 
-      <nav
-        aria-label="Account"
-        className={cn(
-          "mt-8 flex justify-between font-terminal text-[11px] tracking-[0.08em] uppercase",
-          enter,
-        )}
-        style={stagger(460 + fieldDelay)}
-      >
-        {copy.links.map((link) => (
+      <div className="flex flex-col gap-4">
+        <Button type="submit" disabled={pending} className="h-11 w-full gap-2 text-base">
+          {pending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+              {copy.pending}
+            </>
+          ) : (
+            copy.submit
+          )}
+        </Button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          {copy.switchText}{" "}
           <Link
-            key={link.label}
-            href={link.href}
-            className="inline-flex min-h-11 items-center rounded-sm text-white/55 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            href={copy.switchHref}
+            className="rounded font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            {link.label}
+            {copy.switchLabel}
           </Link>
-        ))}
-      </nav>
-    </div>
+        </p>
+      </div>
+    </form>
   );
 }
