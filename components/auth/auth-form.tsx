@@ -3,49 +3,96 @@
 import * as React from "react";
 import Link from "next/link";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { buttonVariants } from "@/components/ui/saa-s-template";
 import { authenticate, type AuthMode, type AuthState } from "@/lib/actions/auth";
+import { cn } from "@/lib/utils";
 
 const COPY = {
   login: {
-    title: "Welcome back",
-    description: "Sign in to your account to continue.",
+    eyebrow: "Corridor · Secure node 01",
+    title: ["Welcome", "back"],
     submit: "Sign in",
     pending: "Signing in…",
-    switchText: "Don't have an account?",
-    switchLabel: "Sign up",
-    switchHref: "/signup",
+    links: [
+      // Placeholder until a password-reset flow exists.
+      { label: "Forgot password", href: "#" },
+      { label: "Create account", href: "/signup" },
+    ],
   },
   signup: {
-    title: "Create your account",
-    description: "Start streaming your work in under a minute.",
+    eyebrow: "Corridor · New archive",
+    title: ["Create", "account"],
     submit: "Create account",
     pending: "Creating account…",
-    switchText: "Already have an account?",
-    switchLabel: "Sign in",
-    switchHref: "/login",
+    links: [
+      { label: "Back to home", href: "/" },
+      { label: "Sign in instead", href: "/login" },
+    ],
   },
 } as const;
 
-// Same gradient treatment as the landing page headline.
-const gradientText: React.CSSProperties = {
-  background: "linear-gradient(to bottom, #ffffff, #ffffff, rgba(255, 255, 255, 0.6))",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  backgroundClip: "text",
-  letterSpacing: "-0.04em",
+// The signature ease of the reference: fast out, long settle.
+const settle = "ease-[cubic-bezier(0.2,1,0.3,1)]";
+
+// Staggered rise-in. The delay goes inline because Tailwind can't see
+// class names assembled at runtime.
+const enter = cn(
+  "animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-700 motion-reduce:animate-none",
+  settle,
+);
+const stagger = (ms: number): React.CSSProperties => ({ animationDelay: `${ms}ms` });
+
+type FieldProps = React.ComponentProps<"input"> & {
+  id: string;
+  label: string;
+  error?: string;
+  trailing?: React.ReactNode;
 };
 
-const inputClass = "h-10 border-gray-800 bg-gray-900/50 px-3 placeholder:text-gray-500";
-
-function FieldError({ id, message }: { id: string; message?: string }) {
-  if (!message) return null;
+function Field({ id, label, error, trailing, className, ...props }: FieldProps) {
+  const errorId = `${id}-error`;
   return (
-    <p id={id} className="text-xs text-red-400">
-      {message}
-    </p>
+    <div
+      className={cn(
+        "group/field transition-transform duration-500 focus-within:translate-x-2.5 motion-reduce:transition-none motion-reduce:focus-within:translate-x-0",
+        settle,
+      )}
+    >
+      <label
+        htmlFor={id}
+        className="block font-terminal text-[11px] tracking-[0.14em] text-white/55 uppercase transition-colors group-focus-within/field:text-white/90"
+      >
+        {label}
+      </label>
+      <div className="relative mt-1">
+        <input
+          id={id}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          className={cn(
+            "peer w-full rounded-none border-0 border-b border-white/15 bg-transparent py-3 text-lg text-white caret-white outline-none transition-colors placeholder:text-white/30 hover:border-white/30 aria-invalid:border-red-400/50",
+            "autofill:shadow-[inset_0_0_0_1000px_#050505] autofill:[-webkit-text-fill-color:#fff]",
+            trailing ? "pr-11" : null,
+            className,
+          )}
+          {...props}
+        />
+        {/* The mercury line that pours across the field on focus. */}
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-[#e0e0e0] shadow-[0_0_15px_#e0e0e0] transition-transform duration-700 peer-focus:scale-x-100 motion-reduce:transition-none",
+            "peer-aria-invalid:scale-x-100 peer-aria-invalid:bg-red-400 peer-aria-invalid:shadow-[0_0_12px_rgb(248_113_113/0.6)]",
+            settle,
+          )}
+        />
+        {trailing}
+      </div>
+      {error ? (
+        <p id={errorId} className="mt-2 font-terminal text-[11px] text-red-400">
+          {error}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
@@ -57,6 +104,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   const [showPassword, setShowPassword] = React.useState(false);
   const copy = COPY[mode];
   const errors = state.errors ?? {};
+  const fieldDelay = mode === "signup" ? 80 : 0;
 
   // Dispatching manually (instead of <form action>) skips React's automatic
   // form reset, so the fields keep what was typed when validation fails.
@@ -67,124 +115,153 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <input type="hidden" name="mode" value={mode} />
-
-      <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-3xl font-medium" style={gradientText}>
-          {copy.title}
-        </h1>
-        <p className="text-sm text-gray-400">{copy.description}</p>
-      </div>
-
-      {state.message ? (
-        <p
-          role="alert"
-          className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
-        >
-          {state.message}
-        </p>
-      ) : null}
-
-      <div className="flex flex-col gap-4">
-        {mode === "signup" ? (
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              autoComplete="name"
-              placeholder="Ada Lovelace"
-              required
-              aria-invalid={errors.name ? true : undefined}
-              aria-describedby={errors.name ? "name-error" : undefined}
-              className={inputClass}
+    <div>
+      {/* Blur + alpha threshold: makes the button and its drop melt together. */}
+      <svg aria-hidden className="absolute size-0">
+        <defs>
+          <filter id="mercury-goo">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feColorMatrix
+              in="blur"
+              mode="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
+              result="goo"
             />
-            <FieldError id="name-error" message={errors.name} />
-          </div>
+            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+          </filter>
+        </defs>
+      </svg>
+
+      <header className={cn("mb-14", enter)} style={stagger(100)}>
+        <p className="font-terminal text-[11px] tracking-[0.35em] text-white/50 uppercase">
+          {copy.eyebrow}
+        </p>
+        <h1 className="mt-3 -ml-0.5 text-5xl leading-[0.9] font-extrabold tracking-[-0.045em] uppercase">
+          {copy.title[0]}
+          <br />
+          {copy.title[1]}
+        </h1>
+      </header>
+
+      <form onSubmit={handleSubmit}>
+        <input type="hidden" name="mode" value={mode} />
+
+        {state.message ? (
+          <p
+            role="alert"
+            className="mb-8 border-l-2 border-red-400 bg-red-500/10 px-3 py-2 font-terminal text-xs text-red-300"
+          >
+            {state.message}
+          </p>
         ) : null}
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            required
-            aria-invalid={errors.email ? true : undefined}
-            aria-describedby={errors.email ? "email-error" : undefined}
-            className={inputClass}
-          />
-          <FieldError id="email-error" message={errors.email} />
-        </div>
+        <div className="flex flex-col gap-8">
+          {mode === "signup" ? (
+            <div className={enter} style={stagger(200)}>
+              <Field
+                id="name"
+                name="name"
+                label="Name"
+                autoComplete="name"
+                placeholder="Ada Lovelace"
+                required
+                error={errors.name}
+              />
+            </div>
+          ) : null}
 
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            {mode === "login" ? (
-              // Placeholder until a password-reset flow exists.
-              <a href="#" className="text-xs text-gray-400 transition-colors hover:text-white">
-                Forgot password?
-              </a>
-            ) : null}
+          <div className={enter} style={stagger(200 + fieldDelay)}>
+            <Field
+              id="email"
+              name="email"
+              type="email"
+              label="Email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              required
+              error={errors.email}
+            />
           </div>
-          <div className="relative">
-            <Input
+
+          <div className={enter} style={stagger(280 + fieldDelay)}>
+            <Field
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
+              label="Password"
               autoComplete={mode === "login" ? "current-password" : "new-password"}
               placeholder={mode === "signup" ? "At least 8 characters" : "••••••••"}
               required
               minLength={mode === "signup" ? 8 : undefined}
-              aria-invalid={errors.password ? true : undefined}
-              aria-describedby={errors.password ? "password-error" : undefined}
-              className={`${inputClass} pr-10`}
+              error={errors.password}
+              trailing={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 my-auto flex size-11 items-center justify-center rounded-md text-white/45 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  aria-label="Show password"
+                  aria-pressed={showPassword}
+                >
+                  {showPassword ? (
+                    <EyeOff size={18} aria-hidden />
+                  ) : (
+                    <Eye size={18} aria-hidden />
+                  )}
+                </button>
+              }
+            />
+          </div>
+        </div>
+
+        {/* The focus ring lives outside the goo filter, which would erase it. */}
+        <div
+          className={cn(
+            "mt-12 rounded-[1.25rem] has-focus-visible:ring-2 has-focus-visible:ring-white/70 has-focus-visible:ring-offset-4 has-focus-visible:ring-offset-[#050505]",
+            enter,
+          )}
+          style={stagger(380 + fieldDelay)}
+        >
+          <div className="group/submit relative [filter:url(#mercury-goo)]">
+            <span
+              aria-hidden
+              className="absolute inset-0 rounded-full bg-[#e0e0e0] transition-[scale,filter] duration-500 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] group-hover/submit:scale-x-105 group-hover/submit:scale-y-120 group-hover/submit:brightness-110 motion-reduce:transition-none"
             />
             <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-gray-400 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              aria-pressed={showPassword}
+              type="submit"
+              disabled={pending}
+              className="relative flex w-full items-center justify-center gap-2 rounded-[1.1rem] bg-white px-10 py-5 text-sm font-extrabold tracking-[0.15em] text-black uppercase transition-[letter-spacing] duration-300 outline-none hover:tracking-[0.28em] disabled:cursor-wait disabled:hover:tracking-[0.15em] motion-reduce:transition-none"
             >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              {pending ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" aria-hidden />
+                  {copy.pending}
+                </>
+              ) : (
+                copy.submit
+              )}
             </button>
           </div>
-          <FieldError id="password-error" message={errors.password} />
         </div>
-      </div>
+      </form>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className={buttonVariants({
-          variant: "gradient",
-          size: "lg",
-          className: "w-full rounded-lg hover:scale-[1.02] active:scale-[0.98]",
-        })}
-      >
-        {pending ? (
-          <>
-            <Loader2 size={18} className="animate-spin" aria-hidden />
-            {copy.pending}
-          </>
-        ) : (
-          copy.submit
+      <nav
+        aria-label="Account"
+        className={cn(
+          "mt-8 flex justify-between font-terminal text-[11px] tracking-[0.08em] uppercase",
+          enter,
         )}
-      </button>
-
-      <p className="text-center text-sm text-gray-400">
-        {copy.switchText}{" "}
-        <Link
-          href={copy.switchHref}
-          className="font-medium text-white underline-offset-4 hover:underline"
-        >
-          {copy.switchLabel}
-        </Link>
-      </p>
-    </form>
+        style={stagger(460 + fieldDelay)}
+      >
+        {copy.links.map((link) => (
+          <Link
+            key={link.label}
+            href={link.href}
+            className="inline-flex min-h-11 items-center rounded-sm text-white/55 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
+    </div>
   );
 }
