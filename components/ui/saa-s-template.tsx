@@ -158,6 +158,8 @@ function Hero() {
         <h2 className="sr-only">Showcase</h2>
         <ImageStreamHero
           images={STREAM_IMAGES}
+          // One card per language, so every language shows on each rail.
+          cards={STREAM_IMAGES.length}
           className="aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[21/9] [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]"
         />
         <div

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1000" viewBox="0 0 720 1000">
+  <title>Swift</title>
+  <defs>
+    <radialGradient id="g1" cx="600" cy="140" r="560" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F05138" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#F05138" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g2" cx="60" cy="940" r="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFB36B" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#FFB36B" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#FFFFFF" stroke-opacity="0.05"/>
+    </pattern>
+    <linearGradient id="pane" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14141C" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#0A0A10" stop-opacity="0.86"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="1000" fill="#07070B"/>
+  <rect width="720" height="1000" fill="url(#grid)"/>
+  <rect width="720" height="1000" fill="url(#g1)"/>
+  <rect width="720" height="1000" fill="url(#g2)"/>
+
+  <rect x="48" y="96" width="624" height="460" rx="28" fill="url(#pane)" stroke="#FFFFFF" stroke-opacity="0.12"/>
+  <circle cx="88" cy="136" r="8" fill="#FF5F57"/>
+  <circle cx="116" cy="136" r="8" fill="#FEBC2E"/>
+  <circle cx="144" cy="136" r="8" fill="#28C840"/>
+  <text x="632" y="144" text-anchor="end" font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" fill="#8B8FA3">main.swift</text>
+  <path d="M48 168H672" stroke="#FFFFFF" stroke-opacity="0.08"/>
+  <g font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="27">
+    <text x="84" y="236" xml:space="preserve"><tspan fill="#f58e7e">struct</tspan> <tspan fill="#f9b9af">Planet</tspan> <tspan fill="#8B8FA3">{</tspan></text>
+    <text x="84" y="280" xml:space="preserve">    <tspan fill="#f58e7e">let</tspan> <tspan fill="#D5D7E2">name</tspan><tspan fill="#8B8FA3">:</tspan> <tspan fill="#f9b9af">String</tspan></text>
+    <text x="84" y="324" xml:space="preserve"><tspan fill="#8B8FA3">}</tspan></text>
+    <text x="84" y="368" xml:space="preserve"></text>
+    <text x="84" y="412" xml:space="preserve"><tspan fill="#f58e7e">let</tspan> <tspan fill="#D5D7E2">home</tspan> <tspan fill="#8B8FA3">=</tspan> <tspan fill="#f9b9af">Planet</tspan><tspan fill="#8B8FA3">(</tspan><tspan fill="#D5D7E2">name</tspan><tspan fill="#8B8FA3">:</tspan> <tspan fill="#ffca97">"Earth"</tspan><tspan fill="#8B8FA3">)</tspan></text>
+    <text x="84" y="456" xml:space="preserve"><tspan fill="#FFFFFF">print</tspan><tspan fill="#8B8FA3">(</tspan><tspan fill="#ffca97">"Hello, \(home.name)"</tspan><tspan fill="#8B8FA3">)</tspan></text>
+  </g>
+
+  <text x="48" y="886" font-family="'Segoe UI', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="132" letter-spacing="-3" fill="#FFFFFF">Swift</text>
+  <text x="52" y="940" font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="24" fill="#ffd1a6">.swift</text>
+</svg>

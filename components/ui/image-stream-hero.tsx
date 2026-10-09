@@ -166,6 +166,29 @@ export function ImageStreamHero({
   const card = `ish-c-${id}`;
 
   const p = React.useMemo(() => ({ ...PATH, ...path }), [path]);
+  const railsRef = React.useRef<HTMLDivElement>(null);
+
+  // A card's CSS animation counts from when its element mounted. Cards added
+  // to a running corridor (a new `cards` count, Fast Refresh) would fly out
+  // of phase, tearing holes in the ribbon and stacking onto other cards, so
+  // pin every card to the earliest start.
+  React.useEffect(() => {
+    const animations = railsRef.current?.getAnimations({ subtree: true }) ?? [];
+    let cancelled = false;
+    Promise.all(animations.map((a) => a.ready)).then(
+      () => {
+        if (cancelled) return;
+        // Paused (reduced motion) animations have no start time to align.
+        const running = animations.filter((a) => typeof a.startTime === "number");
+        const start = Math.min(...running.map((a) => a.startTime as number));
+        for (const a of running) a.startTime = start;
+      },
+      () => {}, // a card unmounted mid-way; the next render realigns
+    );
+    return () => {
+      cancelled = true;
+    };
+  });
 
   const css = React.useMemo(
     () =>
@@ -194,13 +217,17 @@ export function ImageStreamHero({
         }}
       >
         <div
+          ref={railsRef}
           className="absolute inset-0"
           style={{ transformStyle: "preserve-3d" }}
         >
-          {[right, left].map((name) =>
+          {[right, left].map((name, rail) =>
             Array.from({ length: cards }, (_, i) => {
-              // Both rails walk the same sequence, so the left side mirrors
-              // the right at every depth.
+              // Both rails walk the same sequence, but the left one runs half
+              // a card behind. In lockstep each mirrored pair shares a depth,
+              // so the two newborns slide through each other as they cross
+              // the axis: a flickering seam where two cards look joined.
+              const phase = i + rail * 0.5;
               const img = images[i % Math.max(images.length, 1)];
               return (
                 <div
@@ -217,7 +244,7 @@ export function ImageStreamHero({
                     animation: `${name} ${speed}s linear infinite`,
                     // Negative delay drops each card mid-flight, so the
                     // corridor is already full on the first frame.
-                    animationDelay: `${-(i * speed) / cards}s`,
+                    animationDelay: `${-(phase * speed) / cards}s`,
                     backfaceVisibility: "hidden",
                   }}
                 >
