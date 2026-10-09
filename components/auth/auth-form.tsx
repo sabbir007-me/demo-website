@@ -207,7 +207,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
-              label="Password"
               autoComplete={mode === "login" ? "current-password" : "new-password"}
               required
               minLength={mode === "signup" ? MIN_PASSWORD : undefined}

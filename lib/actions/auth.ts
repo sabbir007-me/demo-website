@@ -27,5 +27,5 @@ export async function authenticate(
   // TODO: No auth provider is connected yet, so any well-formed credentials
   // get through. Call your provider's sign-in / sign-up here and return
   // { message } on failure instead of redirecting.
-  redirect("/");
+  redirect("/dashboard");
 }
