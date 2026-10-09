@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="800" viewBox="0 0 1160 800">
+  <title>C++</title>
+  <defs>
+    <radialGradient id="g1" cx="1020" cy="100" r="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00599C" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#00599C" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g2" cx="80" cy="760" r="620" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#659AD2" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#659AD2" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#FFFFFF" stroke-opacity="0.05"/>
+    </pattern>
+    <linearGradient id="pane" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14141C" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#0A0A10" stop-opacity="0.86"/>
+    </linearGradient>
+  </defs>
+  <rect width="1160" height="800" fill="#07070B"/>
+  <rect width="1160" height="800" fill="url(#grid)"/>
+  <rect width="1160" height="800" fill="url(#g1)"/>
+  <rect width="1160" height="800" fill="url(#g2)"/>
+  <text x="68" y="132" font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="24" fill="#a3c2e4">// range-for over a vector</text>
+  <text x="64" y="640" font-family="'Segoe UI', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="150" letter-spacing="-3" fill="#FFFFFF">C++</text>
+  <text x="68" y="696" font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="26" fill="#a3c2e4">.cpp</text>
+  <rect x="500" y="126" width="600" height="548" rx="28" fill="url(#pane)" stroke="#FFFFFF" stroke-opacity="0.12"/>
+  <circle cx="540" cy="166" r="8" fill="#FF5F57"/>
+  <circle cx="568" cy="166" r="8" fill="#FEBC2E"/>
+  <circle cx="596" cy="166" r="8" fill="#28C840"/>
+  <text x="1060" y="174" text-anchor="end" font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" fill="#8B8FA3">main.cpp</text>
+  <path d="M500 198H1100" stroke="#FFFFFF" stroke-opacity="0.08"/>
+  <g font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="27">
+    <text x="536" y="266" xml:space="preserve"><tspan fill="#5993bf">#include</tspan> <tspan fill="#8B8FA3">&lt;</tspan><tspan fill="#D5D7E2">iostream</tspan><tspan fill="#8B8FA3">&gt;</tspan></text>
+    <text x="536" y="310" xml:space="preserve"><tspan fill="#5993bf">#include</tspan> <tspan fill="#8B8FA3">&lt;</tspan><tspan fill="#D5D7E2">vector</tspan><tspan fill="#8B8FA3">&gt;</tspan></text>
+    <text x="536" y="354" xml:space="preserve"></text>
+    <text x="536" y="398" xml:space="preserve"><tspan fill="#5993bf">int</tspan> <tspan fill="#FFFFFF">main</tspan><tspan fill="#8B8FA3">(</tspan><tspan fill="#8B8FA3">)</tspan> <tspan fill="#8B8FA3">{</tspan></text>
+    <text x="536" y="442" xml:space="preserve">  <tspan fill="#5993bf">std</tspan><tspan fill="#8B8FA3">:</tspan><tspan fill="#8B8FA3">:</tspan><tspan fill="#D5D7E2">vector</tspan><tspan fill="#8B8FA3">&lt;</tspan><tspan fill="#5993bf">int</tspan><tspan fill="#8B8FA3">&gt;</tspan> <tspan fill="#D5D7E2">v</tspan><tspan fill="#8B8FA3">{</tspan><tspan fill="#F9C97C">3</tspan><tspan fill="#8B8FA3">,</tspan> <tspan fill="#F9C97C">1</tspan><tspan fill="#8B8FA3">,</tspan> <tspan fill="#F9C97C">2</tspan><tspan fill="#8B8FA3">}</tspan><tspan fill="#8B8FA3">;</tspan></text>
+    <text x="536" y="486" xml:space="preserve">  <tspan fill="#5993bf">for</tspan> <tspan fill="#8B8FA3">(</tspan><tspan fill="#5993bf">int</tspan> <tspan fill="#D5D7E2">x</tspan> <tspan fill="#8B8FA3">:</tspan> <tspan fill="#D5D7E2">v</tspan><tspan fill="#8B8FA3">)</tspan></text>
+    <text x="536" y="530" xml:space="preserve">    <tspan fill="#5993bf">std</tspan><tspan fill="#8B8FA3">:</tspan><tspan fill="#8B8FA3">:</tspan><tspan fill="#D5D7E2">cout</tspan> <tspan fill="#8B8FA3">&lt;</tspan><tspan fill="#8B8FA3">&lt;</tspan> <tspan fill="#D5D7E2">x</tspan> <tspan fill="#8B8FA3">&lt;</tspan><tspan fill="#8B8FA3">&lt;</tspan> <tspan fill="#93b8e0">'\n'</tspan><tspan fill="#8B8FA3">;</tspan></text>
+    <text x="536" y="574" xml:space="preserve"><tspan fill="#8B8FA3">}</tspan></text>
+  </g>
+</svg>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="800" viewBox="0 0 1160 800">
+  <title>Go</title>
+  <defs>
+    <radialGradient id="g1" cx="1020" cy="100" r="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00ADD8" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#00ADD8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g2" cx="80" cy="760" r="620" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#CE3262" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#CE3262" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#FFFFFF" stroke-opacity="0.05"/>
+    </pattern>
+    <linearGradient id="pane" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14141C" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#0A0A10" stop-opacity="0.86"/>
+    </linearGradient>
+  </defs>
+  <rect width="1160" height="800" fill="#07070B"/>
+  <rect width="1160" height="800" fill="url(#grid)"/>
+  <rect width="1160" height="800" fill="url(#g1)"/>
+  <rect width="1160" height="800" fill="url(#g2)"/>
+  <text x="68" y="132" font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="24" fill="#e284a1">// goroutine and channel</text>
+  <text x="64" y="640" font-family="'Segoe UI', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="150" letter-spacing="-3" fill="#FFFFFF">Go</text>
+  <text x="68" y="696" font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="26" fill="#e284a1">.go</text>
+  <rect x="500" y="104" width="600" height="592" rx="28" fill="url(#pane)" stroke="#FFFFFF" stroke-opacity="0.12"/>
+  <circle cx="540" cy="144" r="8" fill="#FF5F57"/>
+  <circle cx="568" cy="144" r="8" fill="#FEBC2E"/>
+  <circle cx="596" cy="144" r="8" fill="#28C840"/>
+  <text x="1060" y="152" text-anchor="end" font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="22" fill="#8B8FA3">main.go</text>
+  <path d="M500 176H1100" stroke="#FFFFFF" stroke-opacity="0.08"/>
+  <g font-family="'Cascadia Code', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="27">
+    <text x="536" y="244" xml:space="preserve"><tspan fill="#59cae6">package</tspan> <tspan fill="#D5D7E2">main</tspan></text>
+    <text x="536" y="288" xml:space="preserve"></text>
+    <text x="536" y="332" xml:space="preserve"><tspan fill="#59cae6">import</tspan> <tspan fill="#dd7091">"fmt"</tspan></text>
+    <text x="536" y="376" xml:space="preserve"></text>
+    <text x="536" y="420" xml:space="preserve"><tspan fill="#59cae6">func</tspan> <tspan fill="#FFFFFF">main</tspan><tspan fill="#8B8FA3">(</tspan><tspan fill="#8B8FA3">)</tspan> <tspan fill="#8B8FA3">{</tspan></text>
+    <text x="536" y="464" xml:space="preserve">    <tspan fill="#D5D7E2">ch</tspan> <tspan fill="#8B8FA3">:</tspan><tspan fill="#8B8FA3">=</tspan> <tspan fill="#59cae6">make</tspan><tspan fill="#8B8FA3">(</tspan><tspan fill="#59cae6">chan</tspan> <tspan fill="#D5D7E2">string</tspan><tspan fill="#8B8FA3">)</tspan></text>
+    <text x="536" y="508" xml:space="preserve">    <tspan fill="#59cae6">go</tspan> <tspan fill="#59cae6">func</tspan><tspan fill="#8B8FA3">(</tspan><tspan fill="#8B8FA3">)</tspan> <tspan fill="#8B8FA3">{</tspan> <tspan fill="#D5D7E2">ch</tspan> <tspan fill="#8B8FA3">&lt;</tspan><tspan fill="#8B8FA3">-</tspan> <tspan fill="#dd7091">"hi"</tspan> <tspan fill="#8B8FA3">}</tspan><tspan fill="#8B8FA3">(</tspan><tspan fill="#8B8FA3">)</tspan></text>
+    <text x="536" y="552" xml:space="preserve">    <tspan fill="#D5D7E2">fmt</tspan><tspan fill="#8B8FA3">.</tspan><tspan fill="#99deef">Println</tspan><tspan fill="#8B8FA3">(</tspan><tspan fill="#8B8FA3">&lt;</tspan><tspan fill="#8B8FA3">-</tspan><tspan fill="#D5D7E2">ch</tspan><tspan fill="#8B8FA3">)</tspan></text>
+    <text x="536" y="596" xml:space="preserve"><tspan fill="#8B8FA3">}</tspan></text>
+  </g>
+</svg>
