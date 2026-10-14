@@ -90,6 +90,78 @@ print(list(fib(10)))`,
       },
     ],
   },
+  cpp: {
+    hero: {
+      src: "/code-art/hero/cpp-logo.webp",
+      alt: "The C++ logo, a neon blue hexagon with orange plus signs, filled with streams of binary digits",
+      subject: "logo",
+    },
+    headline: "Walk the vector,\nnot the index.",
+    accent: "not the index.",
+    body: "A range-for hands you each element in turn, so there is no counter to get wrong and no way to read past the end.",
+    accentLight: "#00599C",
+    accentDark: "#659AD2",
+    file: "main.cpp",
+    code: `#include <iostream>
+#include <vector>
+
+int main() {
+    std::vector<int> v{3, 1, 2};
+    for (int x : v)
+        std::cout << x << '\\n';
+}`,
+    output: "3 1 2 (one per line)",
+    notes: [
+      {
+        title: "Built in one step",
+        body: "std::vector<int> v{3, 1, 2} creates the vector and fills it at once, using list initialisation.",
+      },
+      {
+        title: "Range-for",
+        body: "for (int x : v) visits every element from begin() to end(), so the loop can't run past the last one.",
+      },
+      {
+        title: "Streams, not printf",
+        body: "std::cout << x sends each value to standard output, and '\\n' ends the line without the flush that std::endl adds.",
+      },
+    ],
+  },
+  javascript: {
+    hero: {
+      src: "/code-art/hero/javascript-logo.webp",
+      alt: "The JavaScript logo, a neon gold shield with the letters JS, filled with streams of binary digits",
+      subject: "logo",
+    },
+    headline: "Small function,\nreal page.",
+    accent: "real page.",
+    body: "An arrow function builds the greeting, and one chained call puts it into the page's first heading.",
+    accentLight: "#C77700",
+    accentDark: "#F7DF1E",
+    file: "app.js",
+    code: [
+      "const greet = (name) =>",
+      "  `Hello, ${name}!`;",
+      "",
+      "document",
+      '  .querySelector("h1")',
+      '  .textContent = greet("web");',
+    ].join("\n"),
+    output: "<h1>Hello, web!</h1>",
+    notes: [
+      {
+        title: "Arrow function",
+        body: "(name) => returns its expression directly, so greet needs no braces and no return.",
+      },
+      {
+        title: "Template literal",
+        body: "Backticks let ${name} drop the argument straight into the string.",
+      },
+      {
+        title: "Find, then set",
+        body: 'querySelector("h1") returns the first heading on the page, and textContent replaces its text without parsing any HTML.',
+      },
+    ],
+  },
 };
 
 /** The landing page for a work, or undefined while it doesn't have one yet. */
