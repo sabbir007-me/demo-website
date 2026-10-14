@@ -109,8 +109,8 @@ export default async function WorkLandingPage({ params }: PageProps<"/works/[slu
           // glitch; artwork can shimmer and float freely.
           ambientIntensity={hero ? 0.6 : 0.15}
           float={Boolean(hero)}
-          sculptureScale={hero ? 0.9 : 0.8}
-          mobileSculptureScale={hero ? 0.62 : 0.52}
+          sculptureScale={hero ? (hero.scale ?? 0.9) : 0.8}
+          mobileSculptureScale={hero ? (hero.mobileScale ?? 0.62) : 0.52}
         />
       </div>
 

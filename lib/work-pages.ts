@@ -18,7 +18,14 @@ export type WorkPage = {
   output: string;
   notes: { title: string; body: string }[];
   /** A cut-out image (transparent background) in place of the work's card. */
-  hero?: { src: string; alt: string; subject: string };
+  hero?: {
+    src: string;
+    alt: string;
+    subject: string;
+    /** Size overrides for very wide or tall artwork (1 = the default for the breakpoint). */
+    scale?: number;
+    mobileScale?: number;
+  };
 };
 
 export const WORK_PAGES: Record<string, WorkPage> = {
@@ -159,6 +166,80 @@ int main() {
       {
         title: "Find, then set",
         body: 'querySelector("h1") returns the first heading on the page, and textContent replaces its text without parsing any HTML.',
+      },
+    ],
+  },
+  rust: {
+    hero: {
+      src: "/code-art/hero/rust-logo.webp",
+      alt: "The Rust logo, a dark metal gear with a glowing orange R, filled with streams of code",
+      subject: "logo",
+    },
+    headline: "Fast and safe,\nin six lines.",
+    accent: "in six lines.",
+    body: "An array of two words, a loop that walks it by value, and a println! that writes each one straight from the variable's name.",
+    accentLight: "#CE422B",
+    accentDark: "#F74C00",
+    file: "main.rs",
+    code: `fn main() {
+    let words = ["fast", "safe"];
+    for w in words {
+        println!("{w}!");
+    }
+}`,
+    output: "fast! safe! (one per line)",
+    notes: [
+      {
+        title: "A fixed-size array",
+        body: 'let words = ["fast", "safe"] is an array of two string slices. Its length is known at compile time, so it lives on the stack.',
+      },
+      {
+        title: "Looping by value",
+        body: "Arrays iterate by value, so w is each word in turn, with no index to manage and no way to step past the end.",
+      },
+      {
+        title: "Names in the format string",
+        body: 'println!("{w}!") picks up w by name from the surrounding code. The ! marks a macro, so the format string is checked when the program compiles.',
+      },
+    ],
+  },
+  go: {
+    hero: {
+      src: "/code-art/hero/go-logo.webp",
+      alt: "The Go wordmark with speed lines in neon blue, filled with rows of binary digits",
+      subject: "logo",
+      // The wordmark is about 2.5 times as wide as it is tall.
+      scale: 0.7,
+      mobileScale: 0.48,
+    },
+    headline: "Start it,\nthen talk to it.",
+    accent: "then talk to it.",
+    body: "One goroutine sends a string down a channel and main waits at the other end, so the two meet without a lock in sight.",
+    accentLight: "#007D9C",
+    accentDark: "#00ADD8",
+    file: "main.go",
+    code: `package main
+
+import "fmt"
+
+func main() {
+    ch := make(chan string)
+    go func() { ch <- "hi" }()
+    fmt.Println(<-ch)
+}`,
+    output: "hi",
+    notes: [
+      {
+        title: "An unbuffered channel",
+        body: "make(chan string) creates a channel with no buffer, so a send waits until something is ready to receive it.",
+      },
+      {
+        title: "go starts a goroutine",
+        body: "go func() { … }() runs the function concurrently, and main carries on without waiting for it.",
+      },
+      {
+        title: "Receive, then print",
+        body: '<-ch blocks until the goroutine\'s "hi" arrives, which is what keeps main from exiting before the message is sent.',
       },
     ],
   },
