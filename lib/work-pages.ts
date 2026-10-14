@@ -206,7 +206,7 @@ int main() {
   go: {
     hero: {
       src: "/code-art/hero/go-logo.webp",
-      alt: "The Go wordmark with speed lines in neon blue, filled with rows of binary digits",
+      alt: "The Go wordmark with speed lines in neon blue, filled with columns of binary digits",
       subject: "logo",
       // The wordmark is about 2.5 times as wide as it is tall.
       scale: 0.7,
