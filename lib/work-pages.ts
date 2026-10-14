@@ -57,6 +57,39 @@ print(list(fib(10)))`,
       },
     ],
   },
+  java: {
+    hero: {
+      src: "/code-art/hero/java-logo.webp",
+      alt: "The Java logo, a steaming coffee cup in neon blue and orange, filled with binary digits",
+      subject: "logo",
+    },
+    headline: "Everything lives\nin a class.",
+    accent: "in a class.",
+    body: "The smallest Java program still needs a class and a main method, because that exact signature is where the JVM starts running.",
+    accentLight: "#E76F00",
+    accentDark: "#F89820",
+    file: "Main.java",
+    code: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, Java!");
+    }
+}`,
+    output: "Hello, Java!",
+    notes: [
+      {
+        title: "The class is the file",
+        body: "A public class has to live in a file with the same name, so Main sits in Main.java.",
+      },
+      {
+        title: "A fixed front door",
+        body: "public lets the JVM call main, static means no object has to exist first, and String[] args carries any command-line arguments.",
+      },
+      {
+        title: "One line out",
+        body: "System.out is the standard output stream; println writes the text and ends the line.",
+      },
+    ],
+  },
 };
 
 /** The landing page for a work, or undefined while it doesn't have one yet. */
