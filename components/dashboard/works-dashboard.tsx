@@ -1,7 +1,11 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { WorksWheel } from "@/components/ui/works-wheel";
 import { cn } from "@/lib/utils";
+import { workHref } from "@/lib/work-pages";
 import { WORKS, type Work } from "@/lib/works";
 
 // Fixed locale and zone so the server and client render the same text.
@@ -20,6 +24,7 @@ const drafts = WORKS.filter((work) => work.status === "Draft").length;
 
 function WorkDetail({ work }: { work: Work }) {
   const published = work.status === "Published";
+  const href = workHref(work.id);
   return (
     <article>
       <h2 className="text-[length:var(--wheel-title)] leading-none tracking-tight">
@@ -51,6 +56,18 @@ function WorkDetail({ work }: { work: Work }) {
           </dd>
         </div>
       </dl>
+      {href ? (
+        // The panel lets drags through to the wheel; the link opts back in.
+        <Link
+          href={href}
+          className={buttonVariants({ className: "pointer-events-auto mt-6 h-11 gap-2 px-5 lg:mt-8" })}
+        >
+          Open landing page
+          <ArrowUpRight className="size-4" aria-hidden />
+        </Link>
+      ) : (
+        <p className="mt-6 text-sm text-muted-foreground lg:mt-8">Landing page coming soon.</p>
+      )}
     </article>
   );
 }
@@ -63,6 +80,7 @@ export function WorksDashboard() {
       caption={`${WORKS.length} works · ${compact.format(totalViews)} views · ${drafts} drafts`}
       inset={88}
       renderDetail={(work) => <WorkDetail work={work} />}
+      hrefFor={(work) => workHref(work.id)}
       className="absolute inset-0"
     />
   );

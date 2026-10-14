@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDown, ChevronUp, Orbit } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowUpRight, ChevronDown, ChevronUp, Orbit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -100,6 +101,11 @@ type WorksWheelProps<T extends WorksWheelItem> = {
   renderDetail?: (item: T, index: number) => React.ReactNode;
   /** Space kept clear above and below the ring, e.g. for a header. */
   inset?: number;
+  /**
+   * Where a work's card leads. Clicking the card at the front of the drum
+   * (or pressing Enter) opens it; cards without one just come forward.
+   */
+  hrefFor?: (item: T) => string | undefined;
   className?: string;
 };
 
@@ -109,8 +115,10 @@ export function WorksWheel<T extends WorksWheelItem>({
   caption,
   renderDetail,
   inset = 24,
+  hrefFor,
   className,
 }: WorksWheelProps<T>) {
+  const router = useRouter();
   const count = items.length;
   const lastIndex = Math.max(count - 1, 0);
   const reduced = useReducedMotion();
@@ -280,10 +288,13 @@ export function WorksWheel<T extends WorksWheelItem>({
         go(0);
         break;
       case "Enter":
-      case " ":
-        if (focused) return;
-        go(1);
+      case " ": {
+        const href = focused ? hrefFor?.(items[active]) : undefined;
+        if (href) router.push(href);
+        else if (focused) return;
+        else go(1);
         break;
+      }
       default:
         return;
     }
@@ -328,15 +339,20 @@ export function WorksWheel<T extends WorksWheelItem>({
           aria-hidden
           className="absolute top-1/2 left-1/2 [transform-style:preserve-3d]"
         >
-          {items.map((item, i) => (
+          {items.map((item, i) => {
+            const href = hrefFor?.(item);
+            const opens = Boolean(href) && focused && i === active;
+            return (
             // Not buttons: a click should leave focus on the stage so the
-            // arrow keys keep working.
+            // arrow keys keep working. The detail panel carries a real link
+            // to the same page for keyboard and screen reader users.
             <div
               key={item.id}
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              onClick={() => go(i + 1)}
+              onClick={() => (opens && href ? router.push(href) : go(i + 1))}
+              onMouseEnter={href ? () => router.prefetch(href) : undefined}
               className="group absolute cursor-pointer [backface-visibility:hidden] will-change-transform"
               style={
                 geo
@@ -359,9 +375,16 @@ export function WorksWheel<T extends WorksWheelItem>({
                   decoding="async"
                   className="size-full object-cover transition-[filter] duration-300 group-hover:brightness-110"
                 />
+                {opens ? (
+                  <span className="glass-primary pointer-events-none absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    Open
+                    <ArrowUpRight className="size-3.5" aria-hidden />
+                  </span>
+                ) : null}
               </span>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

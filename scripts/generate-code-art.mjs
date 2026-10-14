@@ -3,6 +3,7 @@
 //
 //   public/code-art/<slug>.svg       portrait 18:25, the landing corridor
 //   public/code-art/wide/<slug>.svg  landscape 1.45:1, the dashboard wheel
+//   public/code-art/hero/<slug>.svg  the landscape card as a cut-out, /works/<slug>
 //
 // Run from the project root after editing a snippet:
 //   node scripts/generate-code-art.mjs
@@ -305,23 +306,57 @@ function portrait(lang) {
 `;
 }
 
-function landscape(lang) {
-  const [w, h] = [1160, 800];
+const WIDE = [1160, 800];
+
+/** The landscape card's contents, shared by the wheel card and the hero cut-out. */
+function landscapeBody(lang) {
+  const [w, h] = WIDE;
   const paneHeight = Math.max(400, 196 + lang.code.length * LINE);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
-  <title>${esc(lang.name)}</title>
-  ${backdrop(lang, w, h, [1020, 100, 760], [80, 760, 620])}
+  return `${backdrop(lang, w, h, [1020, 100, 760], [80, 760, 620])}
   <text x="68" y="132" font-family="${MONO}" font-size="24" fill="${tint(lang.c2, 0.4)}">// ${esc(lang.about.toLowerCase())}</text>
   ${wordmark(lang, 64, 640, 400, 150)}
   <text x="68" y="696" font-family="${MONO}" font-size="26" fill="${tint(lang.c2, 0.4)}">${esc(ext(lang))}</text>
-  ${editor(lang, 500, Math.round((h - paneHeight) / 2), 600)}
+  ${editor(lang, 500, Math.round((h - paneHeight) / 2), 600)}`;
+}
+
+function landscape(lang) {
+  const [w, h] = WIDE;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <title>${esc(lang.name)}</title>
+  ${landscapeBody(lang)}
+</svg>
+`;
+}
+
+/**
+ * The wheel card as a rounded cut-out on a transparent margin, for the
+ * liquid sculpture hero on /works/<slug>: transparency is how the hero tells
+ * the sculpture from its background. Drawn at 2x so the card stays crisp
+ * when the hero shows it large.
+ */
+function hero(lang) {
+  const [w, h] = WIDE;
+  const pad = 50;
+  const [vw, vh] = [w + pad * 2, h + pad * 2];
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${vw * 2}" height="${vh * 2}" viewBox="0 0 ${vw} ${vh}">
+  <title>${esc(lang.name)}</title>
+  <defs>
+    <clipPath id="card"><rect x="${pad}" y="${pad}" width="${w}" height="${h}" rx="40"/></clipPath>
+  </defs>
+  <g clip-path="url(#card)">
+    <svg x="${pad}" y="${pad}" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  ${landscapeBody(lang)}
+    </svg>
+  </g>
 </svg>
 `;
 }
 
 mkdirSync(join(OUT, "wide"), { recursive: true });
+mkdirSync(join(OUT, "hero"), { recursive: true });
 for (const lang of LANGS) {
   writeFileSync(join(OUT, `${lang.slug}.svg`), portrait(lang));
   writeFileSync(join(OUT, "wide", `${lang.slug}.svg`), landscape(lang));
+  writeFileSync(join(OUT, "hero", `${lang.slug}.svg`), hero(lang));
 }
-console.log(`Wrote ${LANGS.length * 2} cards to ${OUT}`);
+console.log(`Wrote ${LANGS.length * 3} cards to ${OUT}`);
