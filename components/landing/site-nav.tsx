@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,7 @@ export function SiteNav() {
         </ul>
 
         <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           <Link
             href="/login"
             className={buttonVariants({ variant: "ghost", className: "h-10 px-4" })}
@@ -64,19 +66,19 @@ export function SiteNav() {
           </Link>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          aria-label={open ? "Close menu" : "Open menu"}
-          className={cn(
-            "flex size-11 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent md:hidden",
-            focusRing,
-          )}
-        >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle className="size-11" />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            aria-label={open ? "Close menu" : "Open menu"}
+            className={buttonVariants({ variant: "ghost", size: "icon", className: "size-11" })}
+          >
+            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
       </nav>
 
       {open ? (

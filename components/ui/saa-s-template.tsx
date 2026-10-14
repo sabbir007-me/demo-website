@@ -12,6 +12,7 @@ import {
 import { SiteNav } from "@/components/landing/site-nav";
 import { Logo } from "@/components/logo";
 import { buttonVariants } from "@/components/ui/button";
+import GlassmorphismCta from "@/components/ui/glassmorphism-cta";
 import { ImageStreamHero } from "@/components/ui/image-stream-hero";
 import { STREAM_IMAGES } from "@/lib/stream-images";
 import { cn } from "@/lib/utils";
@@ -98,7 +99,7 @@ function Hero() {
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[720px]"
         style={{
           background:
-            "radial-gradient(55% 60% at 50% 0%, rgb(255 255 255 / 0.12), transparent 70%)",
+            "radial-gradient(55% 60% at 50% 0%, var(--glow), transparent 70%)",
         }}
       />
 
@@ -134,19 +135,18 @@ function Hero() {
           viewer.
         </p>
 
-        <div className={cn(enter, "delay-300 mt-10 flex w-full flex-col gap-3 sm:w-auto sm:flex-row")}>
-          <Link
+        <div className={cn(enter, "delay-300 mt-10 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center")}>
+          <GlassmorphismCta
             href="/signup"
-            className={buttonVariants({ className: "h-12 gap-2 px-6 text-base" })}
-          >
-            Get started
-            <ArrowRight className="size-4" aria-hidden />
-          </Link>
+            label="Get started"
+            // White shimmer disappears on the light theme; the token swaps it.
+            shimmerColor="var(--glass-shimmer)"
+          />
           <a
             href="#showcase"
             className={buttonVariants({
               variant: "outline",
-              className: "h-12 px-6 text-base",
+              className: "h-14 px-6 text-base",
             })}
           >
             See it in motion
@@ -282,7 +282,7 @@ function FinalCta() {
             className="pointer-events-none absolute inset-0 -z-10"
             style={{
               background:
-                "radial-gradient(60% 80% at 50% 100%, rgb(255 255 255 / 0.10), transparent 70%)",
+                "radial-gradient(60% 80% at 50% 100%, var(--glow), transparent 70%)",
             }}
           />
           <h2 className="mx-auto max-w-2xl text-balance text-3xl font-semibold tracking-tight sm:text-4xl">

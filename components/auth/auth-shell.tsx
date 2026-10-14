@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Inter, Space_Mono } from "next/font/google";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LiquidMetalBackground } from "@/components/ui/liquid-metal-background";
 import { cn } from "@/lib/utils";
 
@@ -23,24 +24,25 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
       className={cn(
         inter.variable,
         spaceMono.variable,
-        "relative isolate flex min-h-svh flex-col bg-[#050505] font-display text-white [color-scheme:dark]",
+        "relative isolate flex min-h-svh flex-col bg-background font-display text-foreground",
       )}
     >
       <LiquidMetalBackground className="fixed inset-0 -z-10 size-full" />
       {/* Keeps the form legible whenever a blob drifts toward the centre. */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_45%_60%_at_50%_50%,rgba(5,5,5,0.92)_0%,rgba(5,5,5,0.6)_55%,transparent_100%)]"
+        className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_45%_60%_at_50%_50%,color-mix(in_srgb,var(--background)_92%,transparent)_0%,color-mix(in_srgb,var(--background)_60%,transparent)_55%,transparent_100%)]"
       />
 
-      <header className="px-6 pt-6 md:px-10 md:pt-10">
+      <header className="flex items-center justify-between px-6 pt-6 md:px-10 md:pt-10">
         <Link
           href="/"
           aria-label="Corridor home"
-          className="inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#050505]"
+          className="inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
         >
           <Logo />
         </Link>
+        <ThemeToggle />
       </header>
 
       <div className="flex flex-1 items-center justify-center px-6 py-12">

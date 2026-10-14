@@ -3,11 +3,15 @@ import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { WorksDashboard } from "@/components/dashboard/works-dashboard";
 import { Logo } from "@/components/logo";
+import { buttonVariants } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
-const navLink =
-  "inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground";
+const navLink = buttonVariants({
+  variant: "ghost",
+  className: "h-11 gap-2 px-4 text-muted-foreground",
+});
 
 export default function DashboardPage() {
   return (
@@ -24,6 +28,7 @@ export default function DashboardPage() {
           <Logo />
         </Link>
         <nav aria-label="Account" className="pointer-events-auto flex items-center gap-1">
+          <ThemeToggle className="size-11" />
           <Link href="/" className={navLink}>
             View site
           </Link>

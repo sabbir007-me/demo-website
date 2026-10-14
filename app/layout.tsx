@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Geist_Mono } from "next/font/google";
+import { ThemeSync } from "@/components/theme-toggle";
+import { themeScript } from "@/lib/theme";
 import "./globals.css";
 
 // "Premium Sans" pairing from the UI/UX Pro Max typography search.
@@ -21,11 +23,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // Dark is the server default; the head script corrects it before paint,
+    // so <html>'s class can differ from this markup on hydration.
     <html
       lang="en"
       className={`dark ${dmSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="min-h-full flex flex-col">
+        <ThemeSync />
+        {children}
+      </body>
     </html>
   );
 }

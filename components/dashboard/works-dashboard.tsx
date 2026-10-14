@@ -44,7 +44,7 @@ function WorkDetail({ work }: { work: Work }) {
               aria-hidden
               className={cn(
                 "size-1.5 shrink-0 rounded-full",
-                published ? "bg-emerald-400" : "bg-amber-400",
+                published ? "bg-emerald-500 dark:bg-emerald-400" : "bg-amber-500 dark:bg-amber-400",
               )}
             />
             {work.status}

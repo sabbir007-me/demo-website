@@ -51,24 +51,37 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* Light: the "Photography Studio" palette inverted — white paper, ink
+     CTA — so the images still carry all the colour. */
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #fafafa;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #0f172a;
+  --primary-foreground: #f8fafc;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f4f4f5;
+  --muted-foreground: #64748b;
+  --accent: #f4f4f5;
+  --accent-foreground: #0a0a0a;
+  --destructive: #dc2626;
+  --border: #e4e4e7;
+  --input: #d4d4d8;
+  --ring: #0a0a0a;
+  /* Soft light pooled behind the hero and the closing CTA. */
+  --glow: rgb(15 23 42 / 0.06);
+  /* Glass buttons. White shimmer vanishes on white paper, so light mode
+     runs the rim in indigo, the same hue as the CTA's glow. */
+  --glass-shimmer: rgb(99 102 241 / 0.9);
+  --glass-rim: rgb(99 102 241 / 0.25);
+  --glass-tint: rgb(255 255 255 / 0.55);
+  --glass-tint-strong: rgb(255 255 255 / 0.9);
+  --glass-edge: rgb(15 23 42 / 0.12);
+  --glass-sheen: rgb(255 255 255 / 0.7);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -90,6 +103,14 @@
      images carry the colour. The palette's white CTA maps to shadcn's
      --primary; shadcn's --accent is a hover surface, so it takes the
      palette's secondary. */
+  color-scheme: dark;
+  --glow: rgb(255 255 255 / 0.11);
+  --glass-shimmer: rgb(255 255 255 / 0.6);
+  --glass-rim: rgb(255 255 255 / 0.1);
+  --glass-tint: rgb(255 255 255 / 0.05);
+  --glass-tint-strong: rgb(255 255 255 / 0.1);
+  --glass-edge: rgb(255 255 255 / 0.14);
+  --glass-sheen: rgb(255 255 255 / 0.08);
   --background: #000000;
   --foreground: #fafafa;
   --card: #0c0c0c;
@@ -139,4 +160,78 @@
   html {
     scroll-behavior: smooth;
   }
+}
+
+/* ── Glass ──────────────────────────────────────────────────────
+ * The GlassmorphismCta look, as utilities every button can share.
+ * `glass-primary` is the CTA itself: a dark frosted pill whose 1px rim
+ * carries a rotating shimmer. It is painted with background layers
+ * clipped to padding-box (the fill) and border-box (the rim), so it
+ * needs no extra elements and works on any <a> or <button>. The fill is
+ * slightly translucent, so the sweep also glints faintly across the face
+ * — the CTA's inner border beam. `glass` is the quieter frosted surface
+ * for secondary buttons and panels.
+ * ─────────────────────────────────────────────────────────────── */
+
+@property --glass-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes glass-spin {
+  to {
+    --glass-angle: 360deg;
+  }
+}
+
+/* Used by components/ui/glassmorphism-cta.tsx. */
+@keyframes rotate-gradient {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes borderBeamRotation {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@utility glass-primary {
+  border: 1px solid transparent;
+  color: #fff;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.14), transparent 55%) padding-box,
+    linear-gradient(rgb(10 11 20 / 0.86), rgb(10 11 20 / 0.86)) padding-box,
+    /* The CTA's comet has a hard head; a short fade keeps it crisp on the
+       rim without drawing a diagonal line across wide buttons' faces. */
+    conic-gradient(
+        from calc(var(--glass-angle) + 225deg),
+        transparent 0,
+        var(--glass-shimmer) 85deg,
+        transparent 105deg
+      )
+      border-box,
+    linear-gradient(var(--glass-rim), var(--glass-rim)) border-box;
+  backdrop-filter: blur(8px);
+  animation: glass-spin 4s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility glass {
+  border: 1px solid var(--glass-edge);
+  background:
+    linear-gradient(180deg, var(--glass-sheen), transparent 60%),
+    var(--glass-fill, var(--glass-tint));
+  backdrop-filter: blur(12px) saturate(140%);
 }

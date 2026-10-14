@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ChevronDown, ChevronUp, Orbit } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 /*
  * A ring of cards that unrolls into a 3D drum. Position 0 is the ring
@@ -348,7 +349,7 @@ export function WorksWheel<T extends WorksWheelItem>({
                   : undefined
               }
             >
-              <span className="relative block size-full overflow-hidden rounded-lg bg-muted shadow-[0_18px_40px_-18px_rgb(255_255_255/0.14)]">
+              <span className="relative block size-full overflow-hidden rounded-lg bg-muted shadow-[0_18px_40px_-18px_rgb(0_0_0/0.35)] dark:shadow-[0_18px_40px_-18px_rgb(255_255_255/0.14)]">
                 {/* Plain <img>: the cards are 3D-transformed and the URL already carries the crop size. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -419,14 +420,14 @@ export function WorksWheel<T extends WorksWheelItem>({
 
       {/* Buttons for everything scroll and drag do (WCAG 2.5.7). */}
       <div className="absolute inset-x-0 bottom-6 flex justify-center px-6">
-        <div className="flex items-center gap-1 rounded-full border border-border bg-card/80 p-1.5 backdrop-blur-md">
+        <div className="glass flex items-center gap-1 rounded-full p-1.5">
           {focused ? (
             <>
               <button
                 type="button"
                 onClick={() => step(-1)}
                 aria-label="Previous work"
-                className="grid size-11 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground"
+                className={buttonVariants({ variant: "ghost", size: "icon", className: "size-11 text-muted-foreground" })}
               >
                 <ChevronUp className="size-5" aria-hidden />
               </button>
@@ -438,7 +439,7 @@ export function WorksWheel<T extends WorksWheelItem>({
                 onClick={() => step(1)}
                 disabled={active === lastIndex}
                 aria-label="Next work"
-                className="grid size-11 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+                className={buttonVariants({ variant: "ghost", size: "icon", className: "size-11 text-muted-foreground" })}
               >
                 <ChevronDown className="size-5" aria-hidden />
               </button>
@@ -446,7 +447,7 @@ export function WorksWheel<T extends WorksWheelItem>({
               <button
                 type="button"
                 onClick={() => go(0)}
-                className="flex h-11 cursor-pointer items-center gap-2 rounded-full px-4 text-sm transition-colors hover:bg-secondary focus-visible:outline-2 focus-visible:outline-foreground"
+                className={buttonVariants({ variant: "ghost", className: "h-11 gap-2 px-4" })}
               >
                 <Orbit className="size-4" aria-hidden />
                 Overview
@@ -460,7 +461,7 @@ export function WorksWheel<T extends WorksWheelItem>({
               <button
                 type="button"
                 onClick={() => go(1)}
-                className="flex h-11 cursor-pointer items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+                className={buttonVariants({ className: "h-11 gap-2 px-5" })}
               >
                 Browse works
                 <ChevronDown className="size-4" aria-hidden />
