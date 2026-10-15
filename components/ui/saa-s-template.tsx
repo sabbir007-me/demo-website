@@ -7,26 +7,28 @@ import {
   Images,
   LockKeyhole,
   Proportions,
-  Sparkles,
 } from "lucide-react";
-import { SiteNav } from "@/components/landing/site-nav";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
-import GlassmorphismCta from "@/components/ui/glassmorphism-cta";
 import { ImageStreamHero } from "@/components/ui/image-stream-hero";
+import { PrismaHero } from "@/components/ui/prisma-hero";
 import { STREAM_IMAGES } from "@/lib/stream-images";
 import { cn } from "@/lib/utils";
 
 /* Layout follows the "Hero + Features + CTA" / "Product Demo" landing
- * patterns: the corridor itself is the product demo. Motion is limited to
- * the hero entrance and the corridor, and both stand still under
- * prefers-reduced-motion. */
+ * patterns: a full-screen video hero, then the corridor itself as the
+ * product demo. Motion is limited to the hero and the corridor, and both
+ * stand still under prefers-reduced-motion. */
 
 const container = "mx-auto w-full max-w-6xl px-4 sm:px-6";
 
-// Staggered entrance for the hero copy only.
-const enter =
-  "animate-in fade-in slide-in-from-bottom-3 duration-700 ease-out fill-mode-both motion-reduce:animate-none";
+const NAV = [
+  { label: "Showcase", href: "#showcase" },
+  { label: "Features", href: "#features" },
+  { label: "How it works", href: "#how-it-works" },
+  { label: "Sign in", href: "/login" },
+];
 
 const FACTS = [
   { title: "Pure CSS 3D", body: "No WebGL, no animation library" },
@@ -93,69 +95,36 @@ const USAGE = `<ImageStreamHero
 
 function Hero() {
   return (
-    <section className="relative isolate overflow-hidden pt-32 sm:pt-40">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[720px]"
-        style={{
-          background:
-            "radial-gradient(55% 60% at 50% 0%, var(--glow), transparent 70%)",
-        }}
+    <div className="p-2 sm:p-3">
+      <PrismaHero
+        title="Corridor"
+        description="A landing page kit that leads with your images instead of describing them. Drop in your shots and a 3D corridor streams them toward the viewer."
+        cta={{ label: "Get started", href: "/signup" }}
+        navItems={NAV}
+        // The notch is always black, so the switch keeps the hero's cream.
+        navActions={
+          <ThemeToggle className="-my-2 size-8 text-[#E1E0CC]/80 hover:bg-white/10 hover:text-[#E1E0CC] md:size-9" />
+        }
+        // "Corridor" is eight letters, so it runs smaller than the default.
+        titleClassName="text-[24vw] lg:text-[15vw]"
+        // Fills the screen exactly, inside the frame's padding.
+        className="h-[calc(100svh-1rem)] sm:h-[calc(100svh-1.5rem)]"
       />
+    </div>
+  );
+}
 
-      <div className={cn(container, "flex max-w-3xl flex-col items-center text-center")}>
-        <p
-          className={cn(
-            enter,
-            "inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/60 px-3 py-1.5 text-xs font-medium text-muted-foreground",
-          )}
-        >
-          <Sparkles className="size-3.5" aria-hidden />
-          Image-first landing kit
-        </p>
-
-        <h1
-          className={cn(
-            enter,
-            "delay-100 mt-6 text-balance text-5xl font-semibold tracking-tighter sm:text-6xl lg:text-7xl",
-          )}
-        >
-          Your work,{" "}
-          <span className="text-muted-foreground">front and centre.</span>
-        </h1>
-
-        <p
-          className={cn(
-            enter,
-            "delay-200 mt-6 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg",
-          )}
-        >
-          A landing page kit that leads with your images instead of describing
-          them. Drop in your shots and a 3D corridor streams them toward the
-          viewer.
-        </p>
-
-        <div className={cn(enter, "delay-300 mt-10 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center")}>
-          <GlassmorphismCta
-            href="/signup"
-            label="Get started"
-            // White shimmer disappears on the light theme; the token swaps it.
-            shimmerColor="var(--glass-shimmer)"
-          />
-          <a
-            href="#showcase"
-            className={buttonVariants({
-              variant: "outline",
-              className: "h-14 px-6 text-base",
-            })}
-          >
-            See it in motion
-          </a>
-        </div>
+function Showcase() {
+  return (
+    <section id="showcase" className="scroll-mt-8 pt-24 sm:pt-32">
+      <div className={container}>
+        <SectionHeading
+          eyebrow="Showcase"
+          title="Your work, front and centre."
+          body="Drop in your shots and a 3D corridor streams them toward the viewer, on two mirrored rails."
+        />
       </div>
-
-      <div id="showcase" className="relative mt-16 scroll-mt-24 sm:mt-20">
-        <h2 className="sr-only">Showcase</h2>
+      <div className="relative mt-12">
         <ImageStreamHero
           images={STREAM_IMAGES}
           // One card per language, so every language shows on each rail.
@@ -205,7 +174,7 @@ function SectionHeading({
 
 function Features() {
   return (
-    <section id="features" className="scroll-mt-24 py-24 sm:py-32">
+    <section id="features" className="scroll-mt-8 py-24 sm:py-32">
       <div className={container}>
         <SectionHeading
           eyebrow="Features"
@@ -230,7 +199,7 @@ function Features() {
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="scroll-mt-24 border-t border-border/60 py-24 sm:py-32">
+    <section id="how-it-works" className="scroll-mt-8 border-t border-border/60 py-24 sm:py-32">
       <div className={cn(container, "grid items-start gap-12 lg:grid-cols-2 lg:gap-16")}>
         <div>
           <SectionHeading
@@ -342,9 +311,9 @@ function SiteFooter() {
 export default function Component() {
   return (
     <>
-      <SiteNav />
       <main className="flex-1 bg-background text-foreground">
         <Hero />
+        <Showcase />
         <Features />
         <HowItWorks />
         <FinalCta />
