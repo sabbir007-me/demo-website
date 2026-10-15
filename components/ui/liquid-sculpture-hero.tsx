@@ -922,7 +922,10 @@ class LiquidEngine {
     const rm = o.reducedMotion
     const introVis = rm || !o.intro ? 1 : Math.pow(this.introT, 2.2)
     const base = o.ambient && !rm ? clamp(o.ambientIntensity, 0, 2) : 0
-    const amb = base + this.flowing * 0.85 * clamp(o.liquid, 0, 2) * (rm ? 0.3 : 1)
+    // the field displaces in px, so a small sculpture (phones) gets a
+    // proportionally smaller wobble and keeps its shape
+    const ambScale = clamp(Math.min(r.w, r.h) / 520, 0.3, 1)
+    const amb = (base + this.flowing * 0.85 * clamp(o.liquid, 0, 2) * (rm ? 0.3 : 1)) * ambScale
     const rest = o.restStyle === "particles" ? 1 : 0
     const [br, bg, bb] = o.bg
     const [ir, ig, ib] = this.imgBg
