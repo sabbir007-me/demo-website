@@ -29,6 +29,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -69,6 +70,7 @@
   --accent: #f4f4f5;
   --accent-foreground: #0a0a0a;
   --destructive: #dc2626;
+  --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: #e4e4e7;
   --input: #d4d4d8;
   --ring: #0a0a0a;
@@ -126,6 +128,7 @@
   --accent: #27272a;
   --accent-foreground: #fafafa;
   --destructive: #ef4444;
+  --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: #3f3f46;
   --input: #3f3f46;
   --ring: #ffffff;
@@ -401,5 +404,216 @@
   .reveal-marquee,
   .reveal-aurora {
     animation: none;
+  }
+}
+
+/* ── Box loader (components/ui/box-loader.tsx) ─────────────────── */
+
+/* Four cubes rolling round a 3×2 grid, seen from above at an angle. The
+   faces are shaded from one colour, so the loader follows the theme. Set
+   --box-size (one cube's edge) or --box-color on a parent to resize or
+   tint it. */
+.boxes {
+  --size: var(--box-size, 32px);
+  --duration: 800ms;
+  --face: var(--box-color, var(--foreground));
+  position: relative;
+  width: calc(var(--size) * 3);
+  height: calc(var(--size) * 2);
+  /* The tilt pushes the grid down; this pulls it back to centre. */
+  margin-top: calc(var(--size) * -1.5);
+  transform-style: preserve-3d;
+  transform: rotateX(60deg) rotateZ(45deg) rotateY(0deg) translateZ(0);
+}
+
+.boxes .box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--size);
+  height: var(--size);
+  transform-style: preserve-3d;
+}
+
+.boxes .box-1 {
+  transform: translate(100%, 0);
+  animation: box1 var(--duration) linear infinite;
+}
+.boxes .box-2 {
+  transform: translate(0, 100%);
+  animation: box2 var(--duration) linear infinite;
+}
+.boxes .box-3 {
+  transform: translate(100%, 100%);
+  animation: box3 var(--duration) linear infinite;
+}
+.boxes .box-4 {
+  transform: translate(200%, 0);
+  animation: box4 var(--duration) linear infinite;
+}
+
+.boxes .face {
+  --rotate-x: 0deg;
+  --rotate-y: 0deg;
+  --depth: calc(var(--size) / 2);
+  position: absolute;
+  inset: 0;
+  background: var(--face);
+  transform: rotateY(var(--rotate-y)) rotateX(var(--rotate-x)) translateZ(var(--depth));
+}
+.boxes .face-right {
+  --rotate-y: 90deg;
+  background: color-mix(in oklab, var(--face) 55%, var(--background));
+}
+.boxes .face-top {
+  --rotate-x: -90deg;
+  background: color-mix(in oklab, var(--face) 78%, var(--background));
+}
+/* Not a face: the cube's shadow on the floor below it. */
+.boxes .face-back {
+  --depth: calc(var(--size) * -3);
+  background: color-mix(in oklab, var(--face) 14%, transparent);
+}
+
+/* A loader still has to show that work is happening; it just slows down. */
+@media (prefers-reduced-motion: reduce) {
+  .boxes {
+    --duration: 2400ms;
+  }
+}
+
+@keyframes box1 {
+  0%,
+    50% {
+    transform: translate(100%, 0);
+  }
+  100% {
+    transform: translate(200%, 0);
+  }
+}
+
+@keyframes box2 {
+  0% {
+    transform: translate(0, 100%);
+  }
+  50% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(100%, 0);
+  }
+}
+
+@keyframes box3 {
+  0%,
+    50% {
+    transform: translate(100%, 100%);
+  }
+  100% {
+    transform: translate(0, 100%);
+  }
+}
+
+@keyframes box4 {
+  0% {
+    transform: translate(200%, 0);
+  }
+  50% {
+    transform: translate(200%, 100%);
+  }
+  100% {
+    transform: translate(100%, 100%);
+  }
+}
+
+/* ── Loading screen swaps (lib/screen-transition.ts) ───────────── */
+
+/* The loading screen comes and goes as a view transition: the browser
+   animates snapshots of the screen before and after the swap. `in` sinks
+   the page away and brings the loader up; `out` lifts the loader off and
+   settles the next page into focus. The loader has a snapshot of its own,
+   loading-screen-loader, so it moves separately from the screen. */
+
+/* Nothing is clickable mid-swap: a click on the page being revealed could
+   start another swap and cut this one short. */
+:root[data-screen-swap] {
+  pointer-events: none;
+}
+
+:root[data-screen-swap]::view-transition-old(root),
+:root[data-screen-swap]::view-transition-new(root) {
+  /* Each side fades on its own timing; the default additive blend would
+     brighten wherever both are opaque. */
+  mix-blend-mode: normal;
+}
+
+:root[data-screen-swap="in"]::view-transition-old(root) {
+  animation: screen-sink 600ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+:root[data-screen-swap="in"]::view-transition-new(root) {
+  animation: screen-fade-in 400ms 100ms ease-out both;
+}
+:root[data-screen-swap="in"]::view-transition-new(loading-screen-loader) {
+  animation: loader-arrive 550ms 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* The flat loading screen holds still while the next page settles over it. */
+:root[data-screen-swap="out"]::view-transition-old(root) {
+  animation: none;
+}
+:root[data-screen-swap="out"]::view-transition-old(loading-screen-loader) {
+  animation: loader-leave 400ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+:root[data-screen-swap="out"]::view-transition-new(root) {
+  animation: screen-settle 800ms 100ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes screen-sink {
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(12px);
+  }
+}
+@keyframes screen-settle {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+    filter: blur(14px);
+  }
+}
+@keyframes loader-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.85);
+  }
+}
+@keyframes loader-leave {
+  to {
+    opacity: 0;
+    transform: scale(1.15);
+    filter: blur(6px);
+  }
+}
+@keyframes screen-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes screen-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Same timing, but the screens only fade: no zoom, drift or blur. */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-screen-swap="in"]::view-transition-old(root),
+  :root[data-screen-swap="out"]::view-transition-old(loading-screen-loader) {
+    animation-name: screen-fade-out;
+  }
+  :root[data-screen-swap="in"]::view-transition-new(loading-screen-loader),
+  :root[data-screen-swap="out"]::view-transition-new(root) {
+    animation-name: screen-fade-in;
   }
 }

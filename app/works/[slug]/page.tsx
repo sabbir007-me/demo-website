@@ -5,8 +5,8 @@ import { Instrument_Serif } from "next/font/google";
 import { ArrowLeft } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
-import SculptureHero from "@/components/ui/liquid-sculpture-hero";
 import { RevealFooter } from "@/components/works/reveal-footer";
+import { WorkSculpture } from "@/components/works/work-sculpture";
 import { cn } from "@/lib/utils";
 import { WORK_PAGES } from "@/lib/work-pages";
 import { WORKS } from "@/lib/works";
@@ -72,7 +72,8 @@ export default async function WorkLandingPage({ params }: PageProps<"/works/[slu
       <div className="[--work-accent:var(--work-accent-light)] dark:[--work-accent:var(--work-accent-dark)]">
         {/* The curtain: everything above the footer, lifted away on scroll. */}
         <div className="relative z-10 rounded-b-[2rem] border-b border-border/60 bg-background shadow-[0_30px_60px_-24px_rgb(0_0_0/0.35)] sm:rounded-b-[3rem] dark:shadow-[0_40px_90px_-20px_rgb(0_0_0/0.95)]">
-          <SculptureHero
+          {/* Tells a waiting loader (the dashboard's) once the particles are drawn. */}
+          <WorkSculpture
             src={sculpture}
             darkSrc={sculpture}
             mobileSrc={sculpture}

@@ -1118,6 +1118,12 @@ export interface SculptureHeroProps {
   intro?: boolean
   /** Slow floating bob of the whole sculpture. */
   float?: boolean
+  /**
+   * Called each time a sculpture image has finished loading: after the
+   * particles' first frame, once the static image shows instead (no WebGL2,
+   * unreadable pixels), or when the image fails, so a caller never waits forever.
+   */
+  onReady?: () => void
 
   /** Hero height. Default fills the screen exactly, no scrolling. */
   height?: string
@@ -1449,6 +1455,7 @@ export default function SculptureHero(props: SculptureHeroProps) {
     height = "100svh",
     backdropText = "",
     showCredit = true,
+    onReady,
     className,
     style,
   } = props
@@ -1479,6 +1486,8 @@ export default function SculptureHero(props: SculptureHeroProps) {
   const engineRef = React.useRef<LiquidEngine | null>(null)
   const aspectRef = React.useRef(2.5)
   const imgSrcRef = React.useRef<string | null>(null)
+  // Read through a ref so a new callback doesn't reload the image.
+  const onReadyRef = React.useRef(onReady)
 
   const imgSrc = mobile ? (dark ? mobileDarkSrc : mobileSrc) : dark ? darkSrc : src
   const bgCss = dark ? darkBackground : lightBackground
@@ -1579,6 +1588,10 @@ export default function SculptureHero(props: SculptureHeroProps) {
   }, [engineOptions])
 
   React.useEffect(() => {
+    onReadyRef.current = onReady
+  }, [onReady])
+
+  React.useEffect(() => {
     if (loadFonts) injectFonts()
   }, [loadFonts])
 
@@ -1606,12 +1619,14 @@ export default function SculptureHero(props: SculptureHeroProps) {
       const engine = engineRef.current
       if (!engine) {
         setSwapping(false)
+        onReadyRef.current?.()
         return
       }
       engine.onFirstFrame = () => {
         if (cancelled) return
         setGlOn(true)
         setSwapping(false)
+        onReadyRef.current?.()
       }
       try {
         engine.setImage(img)
@@ -1622,10 +1637,13 @@ export default function SculptureHero(props: SculptureHeroProps) {
         engine.destroy()
         setGlOn(false)
         setSwapping(false)
+        onReadyRef.current?.()
       }
     }
     img.onerror = () => {
-      if (!cancelled) setSwapping(false)
+      if (cancelled) return
+      setSwapping(false)
+      onReadyRef.current?.()
     }
     img.src = imgSrc
     return () => {

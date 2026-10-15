@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
+import { useLoading } from "@/components/loading-provider";
 import { buttonVariants } from "@/components/ui/button";
 import { WorksWheel } from "@/components/ui/works-wheel";
+import { waitForParticles } from "@/lib/particles";
 import { cn } from "@/lib/utils";
 import { workHref } from "@/lib/work-pages";
 import { WORKS, type Work } from "@/lib/works";
@@ -22,7 +25,7 @@ const day = new Intl.DateTimeFormat("en-US", {
 const totalViews = WORKS.reduce((sum, work) => sum + work.views, 0);
 const drafts = WORKS.filter((work) => work.status === "Draft").length;
 
-function WorkDetail({ work }: { work: Work }) {
+function WorkDetail({ work, onOpen }: { work: Work; onOpen: (href: string) => void }) {
   const published = work.status === "Published";
   const href = workHref(work.id);
   return (
@@ -60,6 +63,12 @@ function WorkDetail({ work }: { work: Work }) {
         // The panel lets drags through to the wheel; the link opts back in.
         <Link
           href={href}
+          // Same-tab navigations only (a Cmd/Ctrl-click opens a new tab as usual):
+          // the loading screen takes over and navigates once it covers the page.
+          onNavigate={(event) => {
+            event.preventDefault();
+            onOpen(href);
+          }}
           className={buttonVariants({ className: "pointer-events-auto mt-6 h-11 gap-2 px-5 lg:mt-8" })}
         >
           Open landing page
@@ -76,14 +85,35 @@ function WorkDetail({ work }: { work: Work }) {
 }
 
 export function WorksDashboard() {
+  const router = useRouter();
+  const { showWhile } = useLoading();
+
+  // The loading screen covers the wheel first, so the swap of pages happens
+  // out of sight. The work page then rebuilds its language's logo from
+  // particles; the screen lifts once they are drawn, and after 2s at the earliest.
+  const openWork = (work: Work, href: string) => {
+    const from = window.location.pathname;
+    void showWhile(
+      () => {
+        // Back or Forward while the screen came up: stay where the user went.
+        if (window.location.pathname !== from) return Promise.resolve();
+        const particles = waitForParticles();
+        router.push(href);
+        return particles;
+      },
+      { minMs: 2000, label: `Loading ${work.title}` },
+    );
+  };
+
   return (
     <WorksWheel
       items={WORKS}
       label="Works '26"
       caption={`${WORKS.length} works · ${compact.format(totalViews)} views · ${drafts} drafts`}
       inset={88}
-      renderDetail={(work) => <WorkDetail work={work} />}
+      renderDetail={(work) => <WorkDetail work={work} onOpen={(href) => openWork(work, href)} />}
       hrefFor={(work) => workHref(work.id)}
+      onOpen={openWork}
       className="absolute inset-0"
     />
   );

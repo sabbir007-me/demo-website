@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Geist_Mono } from "next/font/google";
+import { LoadingProvider } from "@/components/loading-provider";
 import { ThemeSync } from "@/components/theme-toggle";
 import { themeScript } from "@/lib/theme";
 import "./globals.css";
@@ -35,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeSync />
-        {children}
+        <LoadingProvider>{children}</LoadingProvider>
       </body>
     </html>
   );

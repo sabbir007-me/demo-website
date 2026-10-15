@@ -123,6 +123,8 @@ type WorksWheelProps<T extends WorksWheelItem> = {
    * (or pressing Enter) opens it; cards without one just come forward.
    */
   hrefFor?: (item: T) => string | undefined;
+  /** Opens a work's page. Defaults to a plain client-side navigation. */
+  onOpen?: (item: T, href: string) => void;
   className?: string;
 };
 
@@ -133,6 +135,7 @@ export function WorksWheel<T extends WorksWheelItem>({
   renderDetail,
   inset = 24,
   hrefFor,
+  onOpen,
   className,
 }: WorksWheelProps<T>) {
   const router = useRouter();
@@ -174,6 +177,7 @@ export function WorksWheel<T extends WorksWheelItem>({
     [count],
   );
   const step = (delta: number) => go(Math.round(target.current) + delta);
+  const open = (item: T, href: string) => (onOpen ? onOpen(item, href) : router.push(href));
 
   React.useEffect(() => {
     const stage = stageRef.current;
@@ -225,6 +229,13 @@ export function WorksWheel<T extends WorksWheelItem>({
     };
 
     const tick = (now: number) => {
+      // A navigation hid the wheel mid-animation: its elements are detached
+      // before this effect's cleanup can cancel the frame. Showing the wheel
+      // again re-runs the effect, which picks the animation back up.
+      if (!drumRef.current) {
+        frame.current = 0;
+        return;
+      }
       const dt = Math.min((now - last) / 1000, 0.1);
       last = now;
       const diff = target.current - position.current;
@@ -321,7 +332,7 @@ export function WorksWheel<T extends WorksWheelItem>({
       case "Enter":
       case " ": {
         const href = focused ? hrefFor?.(items[active]) : undefined;
-        if (href) router.push(href);
+        if (href) open(items[active], href);
         else if (focused) return;
         else go(1);
         break;
@@ -382,7 +393,7 @@ export function WorksWheel<T extends WorksWheelItem>({
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              onClick={() => (opens && href ? router.push(href) : go(i + 1))}
+              onClick={() => (opens && href ? open(item, href) : go(i + 1))}
               onMouseEnter={href ? () => router.prefetch(href) : undefined}
               className="group absolute cursor-pointer [backface-visibility:hidden] will-change-transform"
               style={
