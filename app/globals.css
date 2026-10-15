@@ -367,3 +367,39 @@
     transform: translateX(60%);
   }
 }
+
+/* ── Work page reveal footer (components/works/reveal-footer.tsx) ── */
+
+/* The word list is rendered twice, so -50% lands exactly on the copy. */
+@keyframes reveal-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.reveal-marquee {
+  animation: reveal-marquee 38s linear infinite;
+}
+
+@keyframes reveal-aurora {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-42%, -58%) scale(1.15);
+  }
+}
+.reveal-aurora {
+  animation: reveal-aurora 12s ease-in-out infinite;
+}
+.reveal-aurora--slow {
+  animation-duration: 17s;
+  animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-marquee,
+  .reveal-aurora {
+    animation: none;
+  }
+}

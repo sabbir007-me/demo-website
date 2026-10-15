@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import SculptureHero from "@/components/ui/liquid-sculpture-hero";
+import { RevealFooter } from "@/components/works/reveal-footer";
 import { cn } from "@/lib/utils";
 import { WORK_PAGES } from "@/lib/work-pages";
 import { WORKS } from "@/lib/works";
@@ -54,7 +55,9 @@ export default async function WorkLandingPage({ params }: PageProps<"/works/[slu
   const hero = page.hero;
   const sculpture = hero?.src ?? `/code-art/hero/${work.id}.svg`;
   const subject = hero?.subject ?? "card";
-  const position = `${String(index + 1).padStart(2, "0")} / ${String(WORKS.length).padStart(2, "0")}`;
+  // The next work round the ring that has a page of its own.
+  const next = [...WORKS.slice(index + 1), ...WORKS.slice(0, index)].find((w) => WORK_PAGES[w.id]);
+  const position =`${String(index + 1).padStart(2, "0")} / ${String(WORKS.length).padStart(2, "0")}`;
 
   return (
     <main
@@ -67,117 +70,126 @@ export default async function WorkLandingPage({ params }: PageProps<"/works/[slu
       }
     >
       <div className="[--work-accent:var(--work-accent-light)] dark:[--work-accent:var(--work-accent-dark)]">
-        <SculptureHero
-          src={sculpture}
-          darkSrc={sculpture}
-          mobileSrc={sculpture}
-          mobileDarkSrc={sculpture}
-          imageAlt={hero?.alt ?? `The ${work.title} card: ${work.medium.toLowerCase()} in an editor window`}
-          brand="Corridor"
-          brandHref="/"
-          navLinks={[
-            { label: "Home", href: "/" },
-            { label: "The code", href: "#code" },
-          ]}
-          navCta={{ label: "All works", href: "/dashboard" }}
-          navActions={<ThemeToggle />}
-          themeToggle={false}
-          eyebrow={`Works '26 — ${position}`}
-          headline={page.headline}
-          headlineAccent={page.accent}
-          body={page.body}
-          primaryCta={{ label: "Read the code", href: "#code" }}
-          secondaryCta={{ label: "Back to works", href: "/dashboard" }}
-          hint={`Move across the ${subject}`}
-          hintTouch={`Touch the ${subject}`}
-          // Site tokens, so the hero follows the light/dark switch with no flash.
-          background="var(--background)"
-          darkBackground="var(--background)"
-          textColor="var(--foreground)"
-          darkTextColor="var(--foreground)"
-          accentColor="var(--work-accent)"
-          darkAccentColor="var(--work-accent)"
-          headingFont="var(--font-sans), sans-serif"
-          bodyFont="var(--font-sans), sans-serif"
-          accentFont="var(--font-instrument), serif"
-          loadFonts={false}
-          backdropText={work.title}
-          // Both images are solid all the way through, so they need fewer
-          // particles than a filigree sculpture to stay smooth.
-          particleDensity={hero ? 0.4 : 0.35}
-          // A card has straight edges, where much idle drift reads as a
-          // glitch; artwork can shimmer and float freely.
-          ambientIntensity={hero ? 0.6 : 0.15}
-          float={Boolean(hero)}
-          sculptureScale={hero ? (hero.scale ?? 0.9) : 0.8}
-          mobileSculptureScale={hero ? (hero.mobileScale ?? 0.62) : 0.52}
+        {/* The curtain: everything above the footer, lifted away on scroll. */}
+        <div className="relative z-10 rounded-b-[2rem] border-b border-border/60 bg-background shadow-[0_30px_60px_-24px_rgb(0_0_0/0.35)] sm:rounded-b-[3rem] dark:shadow-[0_40px_90px_-20px_rgb(0_0_0/0.95)]">
+          <SculptureHero
+            src={sculpture}
+            darkSrc={sculpture}
+            mobileSrc={sculpture}
+            mobileDarkSrc={sculpture}
+            imageAlt={hero?.alt ?? `The ${work.title} card: ${work.medium.toLowerCase()} in an editor window`}
+            brand="Corridor"
+            brandHref="/"
+            navLinks={[
+              { label: "Home", href: "/" },
+              { label: "The code", href: "#code" },
+            ]}
+            navCta={{ label: "All works", href: "/dashboard" }}
+            navActions={<ThemeToggle />}
+            themeToggle={false}
+            eyebrow={`Works '26 — ${position}`}
+            headline={page.headline}
+            headlineAccent={page.accent}
+            body={page.body}
+            primaryCta={{ label: "Read the code", href: "#code" }}
+            secondaryCta={{ label: "Back to works", href: "/dashboard" }}
+            hint={`Move across the ${subject}`}
+            hintTouch={`Touch the ${subject}`}
+            // Site tokens, so the hero follows the light/dark switch with no flash.
+            background="var(--background)"
+            darkBackground="var(--background)"
+            textColor="var(--foreground)"
+            darkTextColor="var(--foreground)"
+            accentColor="var(--work-accent)"
+            darkAccentColor="var(--work-accent)"
+            headingFont="var(--font-sans), sans-serif"
+            bodyFont="var(--font-sans), sans-serif"
+            accentFont="var(--font-instrument), serif"
+            loadFonts={false}
+            backdropText={work.title}
+            // Both images are solid all the way through, so they need fewer
+            // particles than a filigree sculpture to stay smooth.
+            particleDensity={hero ? 0.4 : 0.35}
+            // A card has straight edges, where much idle drift reads as a
+            // glitch; artwork can shimmer and float freely.
+            ambientIntensity={hero ? 0.6 : 0.15}
+            float={Boolean(hero)}
+            sculptureScale={hero ? (hero.scale ?? 0.9) : 0.8}
+            mobileSculptureScale={hero ? (hero.mobileScale ?? 0.62) : 0.52}
+          />
+
+          <section id="code" className="scroll-mt-8 border-t border-border/60 py-24 sm:py-32">
+            <div className="mx-auto grid w-full max-w-6xl items-start gap-12 px-4 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+              <figure className="overflow-hidden rounded-2xl border border-border/60 bg-card">
+                <figcaption className="flex items-center gap-2 border-b border-border/60 px-4 py-3 font-mono text-xs text-muted-foreground">
+                  <span className="size-2.5 rounded-full bg-[#FF5F57]" aria-hidden />
+                  <span className="size-2.5 rounded-full bg-[#FEBC2E]" aria-hidden />
+                  <span className="size-2.5 rounded-full bg-[#28C840]" aria-hidden />
+                  <span className="ml-2">{page.file}</span>
+                </figcaption>
+                <pre className="overflow-x-auto p-5 font-mono text-sm leading-relaxed text-foreground">
+                  <code>{page.code}</code>
+                </pre>
+                <div className="border-t border-border/60 px-5 py-4 font-mono text-sm">
+                  <span className="text-muted-foreground">Output </span>
+                  <span className="text-foreground">{page.output}</span>
+                </div>
+              </figure>
+
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">{work.medium}</p>
+                <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+                  How the snippet works
+                </h2>
+                <ol className="mt-8 flex flex-col gap-6">
+                  {page.notes.map((note, i) => (
+                    <li key={note.title} className="flex gap-4">
+                      <span
+                        aria-hidden
+                        className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border/70 font-mono text-sm text-muted-foreground"
+                      >
+                        {i + 1}
+                      </span>
+                      <div>
+                        <h3 className="font-medium">{note.title}</h3>
+                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{note.body}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+
+                <dl className="mt-10 grid grid-cols-2 gap-4 border-t border-border pt-6 sm:grid-cols-4">
+                  {[
+                    ["Views", compact.format(work.views)],
+                    ["Saves", compact.format(work.saves)],
+                    ["Status", work.status],
+                    ["Updated", day.format(new Date(work.updated))],
+                  ].map(([term, value]) => (
+                    <div key={term}>
+                      <dt className="text-xs text-muted-foreground">{term}</dt>
+                      <dd className="mt-1 text-lg tabular-nums">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+
+                <Link
+                  href="/dashboard"
+                  className={buttonVariants({ variant: "outline", className: "mt-10 h-12 gap-2 px-6 text-base" })}
+                >
+                  <ArrowLeft className="size-4" aria-hidden />
+                  Back to works
+                </Link>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <RevealFooter
+          title={work.title}
+          marquee={[work.title, work.medium, ...page.notes.map((note) => note.title)]}
+          next={next ? { title: next.title, href: `/works/${next.id}` } : null}
         />
       </div>
-
-      <section id="code" className="scroll-mt-8 border-t border-border/60 py-24 sm:py-32">
-        <div className="mx-auto grid w-full max-w-6xl items-start gap-12 px-4 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
-          <figure className="overflow-hidden rounded-2xl border border-border/60 bg-card">
-            <figcaption className="flex items-center gap-2 border-b border-border/60 px-4 py-3 font-mono text-xs text-muted-foreground">
-              <span className="size-2.5 rounded-full bg-[#FF5F57]" aria-hidden />
-              <span className="size-2.5 rounded-full bg-[#FEBC2E]" aria-hidden />
-              <span className="size-2.5 rounded-full bg-[#28C840]" aria-hidden />
-              <span className="ml-2">{page.file}</span>
-            </figcaption>
-            <pre className="overflow-x-auto p-5 font-mono text-sm leading-relaxed text-foreground">
-              <code>{page.code}</code>
-            </pre>
-            <div className="border-t border-border/60 px-5 py-4 font-mono text-sm">
-              <span className="text-muted-foreground">Output </span>
-              <span className="text-foreground">{page.output}</span>
-            </div>
-          </figure>
-
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">{work.medium}</p>
-            <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-              How the snippet works
-            </h2>
-            <ol className="mt-8 flex flex-col gap-6">
-              {page.notes.map((note, i) => (
-                <li key={note.title} className="flex gap-4">
-                  <span
-                    aria-hidden
-                    className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border/70 font-mono text-sm text-muted-foreground"
-                  >
-                    {i + 1}
-                  </span>
-                  <div>
-                    <h3 className="font-medium">{note.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{note.body}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-
-            <dl className="mt-10 grid grid-cols-2 gap-4 border-t border-border pt-6 sm:grid-cols-4">
-              {[
-                ["Views", compact.format(work.views)],
-                ["Saves", compact.format(work.saves)],
-                ["Status", work.status],
-                ["Updated", day.format(new Date(work.updated))],
-              ].map(([term, value]) => (
-                <div key={term}>
-                  <dt className="text-xs text-muted-foreground">{term}</dt>
-                  <dd className="mt-1 text-lg tabular-nums">{value}</dd>
-                </div>
-              ))}
-            </dl>
-
-            <Link
-              href="/dashboard"
-              className={buttonVariants({ variant: "outline", className: "mt-10 h-12 gap-2 px-6 text-base" })}
-            >
-              <ArrowLeft className="size-4" aria-hidden />
-              Back to works
-            </Link>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }
