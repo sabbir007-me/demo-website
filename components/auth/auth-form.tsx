@@ -86,8 +86,9 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     }
 
     setClientErrors(null);
-    // Dispatching manually (instead of <form action>) skips React's automatic
-    // form reset, so fields keep their values if the server rejects them.
+    // Dispatching manually (preventDefault above stops <form action>) skips
+    // React's automatic form reset, so fields keep their values if the server
+    // rejects them.
     React.startTransition(() => formAction(formData));
   }
 
@@ -109,7 +110,10 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-8">
+    // `action` is the fallback for before (or without) JavaScript: the browser
+    // POSTs the form to the server action. With no action, it would GET the
+    // page instead, putting the email and password in the URL.
+    <form action={formAction} onSubmit={handleSubmit} noValidate className="flex flex-col gap-8">
       <input type="hidden" name="mode" value={mode} />
 
       <div className="flex flex-col gap-2">
