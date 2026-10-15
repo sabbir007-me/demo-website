@@ -322,3 +322,48 @@
     animation: none;
   }
 }
+
+/* ── Feature bento (components/landing/feature-bento.tsx) ─────── */
+
+/* A column of the works wall. The list repeats four times and every card
+   carries its own bottom margin, so -50% lands exactly on the third copy. */
+@keyframes bento-column {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+.bento-column {
+  animation: bento-column 72s linear infinite;
+}
+.bento-column--down {
+  animation-direction: reverse;
+  animation-duration: 88s;
+}
+.group:hover .bento-column {
+  animation-play-state: paused;
+}
+
+@keyframes bento-play {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.bento-playhead {
+  animation: bento-play 3.2s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bento-column {
+    animation: none;
+  }
+  .bento-playhead {
+    animation: none;
+    transform: translateX(60%);
+  }
+}

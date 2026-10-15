@@ -1,13 +1,6 @@
 import Link from "next/link";
-import {
-  Accessibility,
-  ArrowRight,
-  Blocks,
-  Box,
-  Images,
-  LockKeyhole,
-  Proportions,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { FeatureBento } from "@/components/landing/feature-bento";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
@@ -34,39 +27,6 @@ const FACTS = [
   { title: "Pure CSS 3D", body: "No WebGL, no animation library" },
   { title: "Any width", body: "Sized in container units" },
   { title: "Calm by default", body: "Freezes under reduced motion" },
-];
-
-const FEATURES = [
-  {
-    icon: Images,
-    title: "Images lead",
-    body: "Your work streams toward the viewer on two mirrored rails, so the hero shows instead of tells.",
-  },
-  {
-    icon: Box,
-    title: "Pure CSS motion",
-    body: "One set of generated keyframes drives every card. Nothing to load, nothing running on the main thread.",
-  },
-  {
-    icon: Proportions,
-    title: "Fits any width",
-    body: "Every length is in container units, so the corridor keeps its shape from a phone to an ultrawide.",
-  },
-  {
-    icon: Accessibility,
-    title: "Respects reduced motion",
-    body: "With reduced motion on, the corridor pauses as a finished still instead of collapsing.",
-  },
-  {
-    icon: Blocks,
-    title: "Built on shadcn/ui",
-    body: "Next.js, TypeScript, Tailwind CSS v4 and shadcn/ui — copy the components straight into your project.",
-  },
-  {
-    icon: LockKeyhole,
-    title: "Auth screens included",
-    body: "Sign-in and sign-up pages share the same look, with inline validation and a show-password toggle.",
-  },
 ];
 
 const STEPS = [
@@ -181,17 +141,7 @@ function Features() {
           title="Everything the hero needs. Nothing it doesn't."
           body="One component does the heavy lifting; the rest of the kit stays out of its way."
         />
-        <ul className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border/60 bg-border/60 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map(({ icon: Icon, title, body }) => (
-            <li key={title} className="bg-background p-6 sm:p-8">
-              <span className="flex size-10 items-center justify-center rounded-lg border border-border/70 bg-card">
-                <Icon className="size-5 text-foreground" aria-hidden />
-              </span>
-              <h3 className="mt-5 font-medium">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-            </li>
-          ))}
-        </ul>
+        <FeatureBento />
       </div>
     </section>
   );
