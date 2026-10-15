@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { WorksDashboard } from "@/components/dashboard/works-dashboard";
+import DataRain from "@/components/ui/data-rain";
 import { Logo } from "@/components/logo";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -17,6 +18,8 @@ export default function DashboardPage() {
   return (
     <main className="relative h-svh overflow-hidden bg-background text-foreground">
       <h1 className="sr-only">Your works</h1>
+      {/* Decorative backdrop; the wheel and header paint above it. */}
+      <DataRain fullscreen={false} />
       <WorksDashboard />
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-20 items-center justify-between bg-gradient-to-b from-background to-transparent px-4 sm:px-6 lg:px-10">
