@@ -243,6 +243,233 @@ func main() {
       },
     ],
   },
+  kotlin: {
+    hero: {
+      src: "/code-art/hero/kotlin-logo.webp",
+      alt: "The Kotlin logo and wordmark in neon purple, pink and orange, filled with columns of binary digits",
+      subject: "logo",
+      // The wordmark is about three times as wide as it is tall.
+      scale: 0.7,
+      mobileScale: 0.48,
+    },
+    headline: "Copy it,\nchange one thing.",
+    accent: "change one thing.",
+    body: "A data class gets equals, toString and copy for free, so changing one field gives you a new value and leaves the old one alone.",
+    accentLight: "#7F52FF",
+    accentDark: "#A97BFF",
+    file: "Main.kt",
+    code: `data class Point(
+    val x: Int,
+    val y: Int,
+)
+
+fun main() {
+    val p = Point(3, 4)
+    println(p.copy(y = 0))
+}`,
+    output: "Point(x=3, y=0)",
+    notes: [
+      {
+        title: "Data for free",
+        body: "data class writes equals, hashCode, toString and copy from the constructor's properties, so Point needs no body at all.",
+      },
+      {
+        title: "Read-only fields",
+        body: "val makes x and y read-only. To move a point you make a new one rather than editing it in place.",
+      },
+      {
+        title: "Copy by name",
+        body: "p.copy(y = 0) keeps x from p and replaces only y. Naming the argument says exactly which field changes.",
+      },
+    ],
+  },
+  typescript: {
+    hero: {
+      src: "/code-art/hero/typescript-logo.webp",
+      alt: "The TypeScript logo and wordmark in neon blue, filled with columns of binary digits",
+      subject: "logo",
+      // The wordmark is over three times as wide as it is tall.
+      scale: 0.7,
+      mobileScale: 0.48,
+    },
+    headline: "Name the shape,\ncatch the typo.",
+    accent: "catch the typo.",
+    body: "A type alias describes a user once, and the compiler checks every function that takes one before the code ever runs.",
+    accentLight: "#3178C6",
+    accentDark: "#4FA8FF",
+    file: "app.ts",
+    code: [
+      "type User = {",
+      "  id: number;",
+      "  name: string;",
+      "};",
+      "",
+      "const hi = (u: User): string =>",
+      "  `Hi, ${u.name}`;",
+      "",
+      'console.log(hi({ id: 1, name: "Ada" }));',
+    ].join("\n"),
+    output: "Hi, Ada",
+    notes: [
+      {
+        title: "A type alias",
+        body: "type User = { … } names an object shape: a numeric id and a string name. It exists only while compiling and leaves nothing behind in the JavaScript.",
+      },
+      {
+        title: "Typed in and out",
+        body: "(u: User): string says what the arrow function accepts and what it returns. Passing an object without a name is an error in the editor, not a crash at runtime.",
+      },
+      {
+        title: "Checked, then erased",
+        body: "The compiler strips the types and emits plain JavaScript, so hi runs anywhere JavaScript does.",
+      },
+    ],
+  },
+  swift: {
+    hero: {
+      src: "/code-art/hero/swift-logo.webp",
+      alt: "The Swift bird and wordmark in neon orange and red, filled with columns of binary digits",
+      subject: "logo",
+      // The wordmark is about three times as wide as it is tall.
+      scale: 0.7,
+      mobileScale: 0.48,
+    },
+    headline: "Name a planet,\nsay hello.",
+    accent: "say hello.",
+    body: "A struct with one constant, an initializer Swift writes for you, and string interpolation to put the name in the greeting.",
+    accentLight: "#F05138",
+    accentDark: "#FA7343",
+    file: "main.swift",
+    code: `struct Planet {
+    let name: String
+}
+
+let home = Planet(name: "Earth")
+print("Hello, \\(home.name)")`,
+    output: "Hello, Earth",
+    notes: [
+      {
+        title: "Structs are values",
+        body: "Planet is copied whenever it's assigned or passed, so no other part of the program can change home behind your back.",
+      },
+      {
+        title: "A free initializer",
+        body: "Swift generates Planet(name:) from the stored properties, so the struct needs no init of its own.",
+      },
+      {
+        title: "Interpolation",
+        body: "\\(home.name) evaluates the expression in the parentheses and drops the result into the string.",
+      },
+    ],
+  },
+  csharp: {
+    hero: {
+      src: "/code-art/hero/csharp-logo.webp",
+      alt: "The C# logo in neon violet, filled with columns of binary digits",
+      subject: "logo",
+    },
+    headline: "Two languages,\none loop.",
+    accent: "one loop.",
+    body: "var lets the compiler work out an array of strings, and foreach walks it while an interpolated string builds each greeting.",
+    accentLight: "#512BD4",
+    accentDark: "#9B7BFF",
+    file: "Program.cs",
+    code: `var langs = new[] { "C#", "F#" };
+
+foreach (var l in langs)
+{
+    Console.WriteLine(
+        $"Hello from {l}");
+}`,
+    output: "Hello from C#, Hello from F# (one per line)",
+    notes: [
+      {
+        title: "Inferred types",
+        body: "var and new[] leave the types to the compiler, which sees two strings and makes langs a string[].",
+      },
+      {
+        title: "foreach",
+        body: "foreach (var l in langs) visits each element once, with no index to manage and no way to step past the end.",
+      },
+      {
+        title: "Interpolated strings",
+        body: "The $ before the quotes turns {l} into a slot the current value fills, so there is no concatenation or format string to line up.",
+      },
+    ],
+  },
+  ruby: {
+    hero: {
+      src: "/code-art/hero/ruby-logo.webp",
+      alt: "The Ruby gem and wordmark in neon red, filled with columns of binary digits",
+      subject: "logo",
+      // The wordmark is nearly three times as wide as it is tall.
+      scale: 0.7,
+      mobileScale: 0.48,
+    },
+    headline: "Hand it a block,\nlet it loop.",
+    accent: "let it loop.",
+    body: "Ruby loops by handing a block to an iterator: each walks an array of words, and times counts up from zero on its own.",
+    accentLight: "#CC342D",
+    accentDark: "#FF6B5E",
+    file: "app.rb",
+    code: `%w[ruby is fun].each do |w|
+  puts w.capitalize
+end
+
+5.times { |i| print i }`,
+    output: "Ruby, Is, Fun (one per line), then 01234",
+    notes: [
+      {
+        title: "A word array",
+        body: '%w[ruby is fun] is shorthand for ["ruby", "is", "fun"], with no quotes or commas to type.',
+      },
+      {
+        title: "Blocks",
+        body: "do |w| … end is a block. each calls it once per word, with w holding the current one.",
+      },
+      {
+        title: "Numbers iterate too",
+        body: "5.times runs its block five times with i from 0 to 4, and print writes each one without a newline.",
+      },
+    ],
+  },
+  php: {
+    hero: {
+      src: "/code-art/hero/php-logo.webp",
+      alt: "The PHP elephant in neon blue and violet, filled with columns of binary digits",
+      subject: "elephant",
+    },
+    headline: "Every name\ngets a greeting.",
+    accent: "gets a greeting.",
+    body: "A short array, a foreach that hands back each value, and a double-quoted string that drops the variable straight in.",
+    accentLight: "#4F5B93",
+    accentDark: "#8892BF",
+    file: "index.php",
+    code: [
+      "<?php",
+      "",
+      "$langs = ['PHP', 'Laravel'];",
+      "",
+      "foreach ($langs as $lang) {",
+      '    echo "Hello, $lang!\\n";',
+      "}",
+    ].join("\n"),
+    output: "Hello, PHP! Hello, Laravel! (one per line)",
+    notes: [
+      {
+        title: "Short array syntax",
+        body: "['PHP', 'Laravel'] builds an indexed array. The $ marks every variable, including $langs.",
+      },
+      {
+        title: "foreach … as",
+        body: "foreach ($langs as $lang) hands you each value in turn, so there is no counter and no count() call.",
+      },
+      {
+        title: "Variables in strings",
+        body: 'Double quotes interpolate, so "Hello, $lang!\\n" reads the variable and ends the line. Single quotes would print $lang as it is.',
+      },
+    ],
+  },
 };
 
 /** The landing page for a work, or undefined while it doesn't have one yet. */
