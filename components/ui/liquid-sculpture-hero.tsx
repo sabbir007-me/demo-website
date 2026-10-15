@@ -579,6 +579,9 @@ class LiquidEngine {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     this.buildParticles(img)
+    // Nothing sampled means the pixels read as blank; let the caller fall
+    // back to the static <img> rather than show an empty effect.
+    if (!this.n) throw new Error("Sculpture read as blank")
     this.ready = true
     if (this.opts.intro && !this.opts.reducedMotion) this.startIntro()
     this.wake()
@@ -1587,7 +1590,15 @@ export default function SculptureHero(props: SculptureHeroProps) {
     img.decoding = "async"
     const swap = imgSrcRef.current !== null && imgSrcRef.current !== imgSrc
     if (swap) setSwapping(true)
+    // Safari can fire load before an async-decoding image has pixels, and
+    // reading it then (canvas or WebGL) gives a blank sculpture. That only
+    // bites on a first, uncached visit, so wait for decode() as well.
     img.onload = () => {
+      if (cancelled) return
+      const decoded = typeof img.decode === "function" ? img.decode().catch(() => undefined) : Promise.resolve()
+      decoded.then(start)
+    }
+    const start = () => {
       if (cancelled) return
       imgSrcRef.current = imgSrc
       aspectRef.current = img.naturalWidth / img.naturalHeight || 2.5
@@ -1605,7 +1616,8 @@ export default function SculptureHero(props: SculptureHeroProps) {
       try {
         engine.setImage(img)
       } catch {
-        // e.g. a cross-origin image without CORS headers: fall back to <img>
+        // e.g. a cross-origin image without CORS headers, or pixels that
+        // still read as blank: fall back to <img>
         engineRef.current = null
         engine.destroy()
         setGlOn(false)
