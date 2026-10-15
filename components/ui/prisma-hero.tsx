@@ -4,9 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import { MotionConfig, motion, useInView } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { TextRoll } from "@/components/ui/text-roll";
 import { cn } from "@/lib/utils";
 
-/* Full-screen video hero: a giant pull-up headline bottom left, copy and a
+/* Full-screen video hero: a giant rolling headline bottom left, copy and a
  * CTA bottom right, and the nav hanging from the top edge as a notch.
  * Adapted from the Prisma hero. The video is decorative, so the hero keeps
  * fixed light-on-dark colours whatever the site theme is. */
@@ -180,7 +181,12 @@ export function PrismaHero({
                   className={cn("leading-[0.85] font-medium tracking-[-0.07em]", titleClassName)}
                   style={{ color: CREAM }}
                 >
-                  <WordsPullUp text={title} showAsterisk />
+                  <span className="relative inline-block">
+                    <TextRoll>{title}</TextRoll>
+                    <span aria-hidden className="absolute top-[0.65em] -right-[0.3em] text-[0.31em]">
+                      *
+                    </span>
+                  </span>
                 </h1>
               </div>
 
