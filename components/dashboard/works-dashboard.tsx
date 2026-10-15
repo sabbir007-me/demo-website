@@ -66,7 +66,10 @@ function WorkDetail({ work }: { work: Work }) {
           <ArrowUpRight className="size-4" aria-hidden />
         </Link>
       ) : (
-        <p className="mt-6 text-sm text-muted-foreground lg:mt-8">Landing page coming soon.</p>
+        // Same height as the link, so the wheel layout doesn't shift between works.
+        <p className="mt-6 flex h-11 items-center text-sm text-muted-foreground lg:mt-8">
+          Landing page coming soon.
+        </p>
       )}
     </article>
   );

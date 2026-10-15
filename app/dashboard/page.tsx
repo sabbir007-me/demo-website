@@ -19,7 +19,7 @@ export default function DashboardPage() {
       <h1 className="sr-only">Your works</h1>
       <WorksDashboard />
 
-      <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-20 items-center justify-between bg-gradient-to-b from-background to-transparent px-6 lg:px-10">
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-20 items-center justify-between bg-gradient-to-b from-background to-transparent px-4 sm:px-6 lg:px-10">
         <Link
           href="/"
           aria-label="Corridor home"
@@ -29,13 +29,14 @@ export default function DashboardPage() {
         </Link>
         <nav aria-label="Account" className="pointer-events-auto flex items-center gap-1">
           <ThemeToggle className="size-11" />
-          <Link href="/" className={navLink}>
+          {/* Phones reach the site through the logo. */}
+          <Link href="/" className={`${navLink} max-sm:hidden`}>
             View site
           </Link>
           {/* No session exists yet, so signing out is just leaving. */}
-          <Link href="/login" className={navLink}>
+          <Link href="/login" className={`${navLink} max-sm:w-11 max-sm:px-0`}>
             <LogOut className="size-4" aria-hidden />
-            Sign out
+            <span className="max-sm:sr-only">Sign out</span>
           </Link>
         </nav>
       </header>

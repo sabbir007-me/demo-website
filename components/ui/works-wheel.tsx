@@ -33,6 +33,8 @@ const BOW = 1.82; // how far off-centre drum cards curve to the left
 const PERSPECTIVE = 2.7;
 const DRUM_VISIBLE = 1.6; // drum neighbours further out than this are hidden
 const TITLE = 0.124;
+const STACK_GAP = 24; // between the drum card and a detail panel stacked under it
+const DOCK = 96; // kept clear for the control bar at the bottom of the stage
 
 const WHEEL_PX = 900; // scroll distance per card
 const DRAG_PX = 420; // drag distance per card
@@ -44,16 +46,27 @@ const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(mi
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const rad = (deg: number) => (deg * Math.PI) / 180;
 
-function measure(w: number, h: number, count: number, inset: number) {
+function measure(w: number, h: number, count: number, inset: number, detailH: number) {
   const narrow = w < 640;
-  const cardW = Math.min(h * CARD_HEIGHT * CARD_ASPECT, w * (narrow ? CARD_WIDTH_NARROW : CARD_WIDTH));
+  // Below lg the detail panel sits under the drum card instead of beside it.
+  const stacked = w < 1024;
+  let cardW = Math.min(h * CARD_HEIGHT * CARD_ASPECT, w * (narrow ? CARD_WIDTH_NARROW : CARD_WIDTH));
+  const room = h - inset - DOCK;
+  if (stacked && detailH) {
+    // Shrink the card until it and the panel fit between header and controls.
+    const fit = (room - STACK_GAP - detailH) * CARD_ASPECT;
+    cardW = Math.min(cardW, Math.max(fit, cardW * 0.6));
+  }
   const cardH = cardW / CARD_ASPECT;
+  // Centre card and panel together in the free room.
+  const stackTop = inset + Math.max(0, (room - cardH - STACK_GAP - detailH) / 2);
   // Ring card width per unit of radius, and how far its far corner reaches.
   const slot = count ? ((2 * Math.PI) / count) * RING_FILL : 1;
   const reach = 1 + slot * 0.61;
   const ringR = Math.max(0, Math.min(cardH * RING_RADIUS, (w / 2 - 24) / reach, (h / 2 - inset) / reach));
   return {
     narrow,
+    stacked,
     cardW,
     cardH,
     ringR,
@@ -65,6 +78,10 @@ function measure(w: number, h: number, count: number, inset: number) {
     title: Math.max(24, cardH * TITLE),
     // Room for the detail panel between the left gutter and the drum card.
     detailWidth: w / 2 - cardW / 2 - w * 0.08 - 32,
+    // Where the focused card sits relative to the stage centre, and where
+    // the stacked panel starts.
+    focusY: stacked ? stackTop + cardH / 2 - h / 2 : 0,
+    detailTop: stackTop + cardH + STACK_GAP,
   };
 }
 
@@ -139,12 +156,13 @@ export function WorksWheel<T extends WorksWheelItem>({
   const swallowClick = React.useRef(false);
 
   const [size, setSize] = React.useState({ w: 0, h: 0 });
+  const [detailH, setDetailH] = React.useState(0);
   const [active, setActive] = React.useState(0);
   const [focused, setFocused] = React.useState(false);
 
   const geo = React.useMemo(
-    () => (size.h ? measure(size.w, size.h, count, inset) : null),
-    [size.w, size.h, count, inset],
+    () => (size.h ? measure(size.w, size.h, count, inset, detailH) : null),
+    [size.w, size.h, count, inset, detailH],
   );
 
   const go = React.useCallback(
@@ -167,6 +185,14 @@ export function WorksWheel<T extends WorksWheelItem>({
     return () => observer.disconnect();
   }, []);
 
+  React.useEffect(() => {
+    const detail = detailRef.current;
+    if (!detail) return;
+    const observer = new ResizeObserver(() => setDetailH(Math.round(detail.offsetHeight)));
+    observer.observe(detail);
+    return () => observer.disconnect();
+  }, []);
+
   // Transforms are written straight to the DOM each frame; React only hears
   // about it when the focused card changes.
   React.useEffect(() => {
@@ -176,12 +202,17 @@ export function WorksWheel<T extends WorksWheelItem>({
     const draw = (s: number) => {
       const morph = clamp(s, 0, 1);
       const offset = Math.max(0, s - 1);
-      drumRef.current!.style.transform = `translateZ(${-morph * geo.drumR}px)`;
+      drumRef.current!.style.transform =
+        `translateY(${morph * geo.focusY}px) translateZ(${-morph * geo.drumR}px)`;
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
         const rel = i - offset;
         card.style.transform = place(rel * (360 / count), rel * DRUM_STEP, geo, morph);
-        card.style.opacity = morph > 0.5 && Math.abs(rel) > DRUM_VISIBLE ? "0" : "1";
+        // Phones have no room above the card, so neighbours fade out
+        // instead of peeking in under the header.
+        card.style.opacity = geo.narrow
+          ? String(lerp(1, clamp((0.9 - Math.abs(rel)) / 0.5, 0, 1), morph))
+          : morph > 0.5 && Math.abs(rel) > DRUM_VISIBLE ? "0" : "1";
         card.style.zIndex = String(Math.round(100 - Math.abs(rel) * 2));
         (card.firstElementChild as HTMLElement).style.transform =
           `scale(${lerp(geo.ringScale, 1, morph)})`;
@@ -403,7 +434,8 @@ export function WorksWheel<T extends WorksWheelItem>({
       <div
         ref={scrimRef}
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-background from-35% via-background/90 to-transparent opacity-0 lg:hidden"
+        className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-background from-35% via-background/90 to-transparent opacity-0 lg:hidden"
+        style={{ top: geo?.stacked ? geo.detailTop - STACK_GAP : "45%" }}
       />
 
       <div
@@ -411,7 +443,12 @@ export function WorksWheel<T extends WorksWheelItem>({
         inert={!focused}
         className="pointer-events-none absolute inset-x-6 bottom-28 opacity-0 lg:inset-x-auto lg:bottom-auto lg:left-[8%] lg:top-1/2 lg:max-w-(--detail-max) lg:-translate-y-1/2"
         style={
-          geo ? ({ "--detail-max": `${Math.max(geo.detailWidth, 240)}px` } as React.CSSProperties) : undefined
+          geo
+            ? ({
+                "--detail-max": `${Math.max(geo.detailWidth, 240)}px`,
+                ...(geo.stacked && { top: geo.detailTop, bottom: "auto" }),
+              } as React.CSSProperties)
+            : undefined
         }
       >
         {current && renderDetail ? renderDetail(current, active) : null}
